@@ -5,6 +5,7 @@ outputs/
 wandb/
 stats/
 plots/
+.vscode/
 
 
 # Byte-compiled / optimized / DLL files
