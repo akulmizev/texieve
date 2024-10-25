@@ -12,7 +12,7 @@ language_sampling:
   sampling_strategy: "temperature"
   temperature: 3.0
 
-streaming: true
+streaming: false
 
 export: true
 push_to_hub: true

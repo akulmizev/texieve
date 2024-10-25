@@ -7,6 +7,7 @@ from copy import deepcopy
 from dataclasses import asdict
 from shutil import copyfile
 from typing import Any, Dict, List, Optional, Tuple, Union
+from itertools import tee
 
 from sentencepiece import SentencePieceProcessor, SentencePieceTrainer
 from transformers import (
@@ -188,12 +189,10 @@ class HfSentencePieceTokenizerBase(PreTrainedTokenizer, BaseTokenizerMixin):
             An instance of the trained tokenization.
         """
 
-        if isinstance(dataset, IterableDataset):
+        if isinstance(dataset, (IterableDataset, Dataset)):
             sentence_iterator = iter(
                 item[text_column] for item in dataset.select_columns([text_column])
             )
-        elif isinstance(dataset, Dataset):
-            sentence_iterator = iter(dataset[text_column])
         elif isinstance(dataset, list):
             sentence_iterator = iter(dataset)
         else:
@@ -209,11 +208,13 @@ class HfSentencePieceTokenizerBase(PreTrainedTokenizer, BaseTokenizerMixin):
         if config.model.type not in ["unigram", "bpe"]:
             raise ValueError("Model type must be 'unigram' or 'bpe' for SentencePiece.")
 
-        vocab_size = (
-            cls.predict_vocab_size(len("".join(deepcopy(sentence_iterator))))
-            if config.vocab_size == "auto"
-            else config.vocab_size
-        )
+        if config.vocab_size == "auto":
+            sentence_iterator, vocab_size_iterator = tee(sentence_iterator)
+            total_length = sum(len(text) for text in vocab_size_iterator)
+
+            vocab_size = cls.predict_vocab_size(total_length)
+        else:
+            vocab_size = config.vocab_size
 
         logger.info(f"Setting vocab size to {vocab_size}.")
 
