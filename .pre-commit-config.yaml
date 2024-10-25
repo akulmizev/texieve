@@ -1,0 +1,40 @@
+repos:
+-   repo: https://github.com/mxr/sync-pre-commit-deps
+    rev: v0.0.1
+    hooks:
+    -   id: sync-pre-commit-deps
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: check-yaml
+    -   id: end-of-file-fixer
+    -   id: trailing-whitespace
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: python-use-type-annotations
+    -   id: python-check-blanket-noqa
+    -   id: python-check-blanket-type-ignore
+    -   id: python-check-mock-methods
+    -   id: python-no-log-warn
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  rev: v0.6.9
+  hooks:
+    - id: ruff
+      args: [ --fix ]
+      files: ^src/
+    - id: ruff-format
+      files: ^src/
+-   repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 24.10.0
+    hooks:
+      - id: black
+        language_version: python3.11
+-   repo: local
+    hooks:
+    -   id: test-loader
+        name: Test Loader
+        entry: python -m pytest test/data/test_loader.py
+        language: system
+        pass_filenames: false
+        always_run: true

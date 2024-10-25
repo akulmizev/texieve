@@ -1,0 +1,2252 @@
+{
+    "ceb": {
+        "wiki_id": "ceb",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Cebuano"
+    },
+    "deu": {
+        "wiki_id": "de",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "German"
+    },
+    "swe": {
+        "wiki_id": "sv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Swedish"
+    },
+    "fra": {
+        "wiki_id": "fr",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "French"
+    },
+    "nld": {
+        "wiki_id": "nl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Dutch"
+    },
+    "rus": {
+        "wiki_id": "ru",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Russian"
+    },
+    "spa": {
+        "wiki_id": "es",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Spanish"
+    },
+    "ita": {
+        "wiki_id": "it",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Italian"
+    },
+    "arz": {
+        "wiki_id": "arz",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Egyptian Arabic"
+    },
+    "pol": {
+        "wiki_id": "pl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Polish"
+    },
+    "jpn": {
+        "wiki_id": "ja",
+        "scripts": [
+            "Hani",
+            "Hira",
+            "Kana"
+        ],
+        "language": "Japanese"
+    },
+    "zho": {
+        "wiki_id": "zh-classical",
+        "scripts": [
+            "Hani"
+        ],
+        "language": "Classical Chinese"
+    },
+    "ukr": {
+        "wiki_id": "uk",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Ukrainian"
+    },
+    "vie": {
+        "wiki_id": "vi",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Vietnamese"
+    },
+    "war": {
+        "wiki_id": "war",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Waray"
+    },
+    "ara": {
+        "wiki_id": "ar",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Arabic"
+    },
+    "por": {
+        "wiki_id": "pt",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Portuguese"
+    },
+    "fas": {
+        "wiki_id": "fa",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Persian"
+    },
+    "cat": {
+        "wiki_id": "ca",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Catalan"
+    },
+    "srp": {
+        "wiki_id": "sh",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Serbo-Croatian"
+    },
+    "ind": {
+        "wiki_id": "id",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Indonesian"
+    },
+    "kor": {
+        "wiki_id": "ko",
+        "scripts": [
+            "Hang"
+        ],
+        "language": "Korean"
+    },
+    "nor": {
+        "wiki_id": "no",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Norwegian"
+    },
+    "che": {
+        "wiki_id": "ce",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Chechen"
+    },
+    "fin": {
+        "wiki_id": "fi",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Finnish"
+    },
+    "tur": {
+        "wiki_id": "tr",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Turkish"
+    },
+    "ces": {
+        "wiki_id": "cs",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Czech"
+    },
+    "hun": {
+        "wiki_id": "hu",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Hungarian"
+    },
+    "tat": {
+        "wiki_id": "tt",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Tatar"
+    },
+    "ron": {
+        "wiki_id": "ro",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Romanian"
+    },
+    "nan": {
+        "wiki_id": "zh-min-nan",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Min Nan Chinese"
+    },
+    "eus": {
+        "wiki_id": "eu",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Basque"
+    },
+    "msa": {
+        "wiki_id": "ms",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Malay"
+    },
+    "epo": {
+        "wiki_id": "eo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Esperanto"
+    },
+    "heb": {
+        "wiki_id": "he",
+        "scripts": [
+            "Hebr"
+        ],
+        "language": "Hebrew"
+    },
+    "hye": {
+        "wiki_id": "hy",
+        "scripts": [
+            "Armn"
+        ],
+        "language": "Armenian"
+    },
+    "dan": {
+        "wiki_id": "da",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Danish"
+    },
+    "bul": {
+        "wiki_id": "bg",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Bulgarian"
+    },
+    "cym": {
+        "wiki_id": "cy",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Welsh"
+    },
+    "uzb": {
+        "wiki_id": "uz",
+        "scripts": [
+            "Latn",
+            "Cyrl"
+        ],
+        "language": "Uzbek"
+    },
+    "slk": {
+        "wiki_id": "sk",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Slovak"
+    },
+    "eng": {
+        "wiki_id": "simple",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Simple English"
+    },
+    "azb": {
+        "wiki_id": "azb",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "South Azerbaijani"
+    },
+    "est": {
+        "wiki_id": "et",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Estonian"
+    },
+    "bel": {
+        "wiki_id": "be-tarask",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Belarusian (Tara\u0161kievica orthography)"
+    },
+    "kaz": {
+        "wiki_id": "kk",
+        "scripts": [
+            "Cyrl",
+            "Latn",
+            "Arab"
+        ],
+        "language": "Kazakh"
+    },
+    "ell": {
+        "wiki_id": "el",
+        "scripts": [
+            "Grek"
+        ],
+        "language": "Greek"
+    },
+    "min": {
+        "wiki_id": "min",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Minangkabau"
+    },
+    "hrv": {
+        "wiki_id": "hr",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Croatian"
+    },
+    "lit": {
+        "wiki_id": "lt",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lithuanian"
+    },
+    "glg": {
+        "wiki_id": "gl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Galician"
+    },
+    "urd": {
+        "wiki_id": "ur",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Urdu"
+    },
+    "aze": {
+        "wiki_id": "az",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Azerbaijani"
+    },
+    "slv": {
+        "wiki_id": "sl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Slovenian"
+    },
+    "lld": {
+        "wiki_id": "lld",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ladin"
+    },
+    "kat": {
+        "wiki_id": "ka",
+        "scripts": [
+            "Geor"
+        ],
+        "language": "Georgian"
+    },
+    "nno": {
+        "wiki_id": "nn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Norwegian Nynorsk"
+    },
+    "tam": {
+        "wiki_id": "ta",
+        "scripts": [
+            "Taml"
+        ],
+        "language": "Tamil"
+    },
+    "tha": {
+        "wiki_id": "th",
+        "scripts": [
+            "Thai"
+        ],
+        "language": "Thai"
+    },
+    "hin": {
+        "wiki_id": "hi",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Hindi"
+    },
+    "ben": {
+        "wiki_id": "bn",
+        "scripts": [
+            "Beng"
+        ],
+        "language": "Bangla"
+    },
+    "mkd": {
+        "wiki_id": "mk",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Macedonian"
+    },
+    "lat": {
+        "wiki_id": "la",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Latin"
+    },
+    "yue": {
+        "wiki_id": "zh-yue",
+        "scripts": [
+            "Hani"
+        ],
+        "language": "Cantonese"
+    },
+    "ast": {
+        "wiki_id": "ast",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Asturian"
+    },
+    "lav": {
+        "wiki_id": "lv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Latvian"
+    },
+    "afr": {
+        "wiki_id": "af",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Afrikaans"
+    },
+    "tgk": {
+        "wiki_id": "tg",
+        "scripts": [
+            "Cyrl",
+            "Latn"
+        ],
+        "language": "Tajik"
+    },
+    "mya": {
+        "wiki_id": "my",
+        "scripts": [
+            "Mymr"
+        ],
+        "language": "Burmese"
+    },
+    "mlg": {
+        "wiki_id": "mg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Malagasy"
+    },
+    "sqi": {
+        "wiki_id": "sq",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Albanian"
+    },
+    "mar": {
+        "wiki_id": "mr",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Marathi"
+    },
+    "bos": {
+        "wiki_id": "bs",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Bosnian"
+    },
+    "oci": {
+        "wiki_id": "oc",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Occitan"
+    },
+    "tel": {
+        "wiki_id": "te",
+        "scripts": [
+            "Telu"
+        ],
+        "language": "Telugu"
+    },
+    "bre": {
+        "wiki_id": "br",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Breton"
+    },
+    "mal": {
+        "wiki_id": "ml",
+        "scripts": [
+            "Mlym"
+        ],
+        "language": "Malayalam"
+    },
+    "nds": {
+        "wiki_id": "nds-nl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Low Saxon"
+    },
+    "swa": {
+        "wiki_id": "sw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Swahili"
+    },
+    "kir": {
+        "wiki_id": "ky",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Kyrgyz"
+    },
+    "lmo": {
+        "wiki_id": "lmo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lombard"
+    },
+    "jav": {
+        "wiki_id": "map-bms",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Basa Banyumasan"
+    },
+    "new": {
+        "wiki_id": "new",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Newari"
+    },
+    "pnb": {
+        "wiki_id": "pnb",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Western Punjabi"
+    },
+    "kmr": {
+        "wiki_id": "ku",
+        "scripts": [
+            "Latn",
+            "Arab"
+        ],
+        "language": "Kurmanji"
+    },
+    "vec": {
+        "wiki_id": "vec",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Venetian"
+    },
+    "hat": {
+        "wiki_id": "ht",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Haitian Creole"
+    },
+    "pms": {
+        "wiki_id": "pms",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Piedmontese"
+    },
+    "bak": {
+        "wiki_id": "ba",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Bashkir"
+    },
+    "ltz": {
+        "wiki_id": "lb",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Luxembourgish"
+    },
+    "sun": {
+        "wiki_id": "su",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sundanese"
+    },
+    "gle": {
+        "wiki_id": "ga",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Irish"
+    },
+    "isl": {
+        "wiki_id": "is",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Icelandic"
+    },
+    "szl": {
+        "wiki_id": "szl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Silesian"
+    },
+    "fry": {
+        "wiki_id": "fy",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Western Frisian"
+    },
+    "ckb": {
+        "wiki_id": "ckb",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Central Kurdish"
+    },
+    "chv": {
+        "wiki_id": "cv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Chuvash"
+    },
+    "pan": {
+        "wiki_id": "pa",
+        "scripts": [
+            "Guru"
+        ],
+        "language": "Punjabi"
+    },
+    "fil": {
+        "wiki_id": "tl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tagalog"
+    },
+    "arg": {
+        "wiki_id": "an",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Aragonese"
+    },
+    "wuu": {
+        "wiki_id": "wuu",
+        "scripts": [
+            "Hani"
+        ],
+        "language": "Wu Chinese"
+    },
+    "ido": {
+        "wiki_id": "io",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ido"
+    },
+    "diq": {
+        "wiki_id": "diq",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Zazaki"
+    },
+    "vol": {
+        "wiki_id": "vo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Volap\u00fck"
+    },
+    "sco": {
+        "wiki_id": "sco",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Scots"
+    },
+    "hau": {
+        "wiki_id": "ha",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Hausa"
+    },
+    "yor": {
+        "wiki_id": "yo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Yoruba"
+    },
+    "nep": {
+        "wiki_id": "ne",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Nepali"
+    },
+    "kan": {
+        "wiki_id": "kn",
+        "scripts": [
+            "Knda"
+        ],
+        "language": "Kannada"
+    },
+    "ina": {
+        "wiki_id": "ia",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Interlingua"
+    },
+    "guj": {
+        "wiki_id": "gu",
+        "scripts": [
+            "Gujr"
+        ],
+        "language": "Gujarati"
+    },
+    "als": {
+        "wiki_id": "als",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Alemannic"
+    },
+    "avk": {
+        "wiki_id": "avk",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kotava"
+    },
+    "crh": {
+        "wiki_id": "crh",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Crimean Tatar"
+    },
+    "bar": {
+        "wiki_id": "bar",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Bavarian"
+    },
+    "scn": {
+        "wiki_id": "scn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sicilian"
+    },
+    "bpy": {
+        "wiki_id": "bpy",
+        "scripts": [
+            "Beng"
+        ],
+        "language": "Bishnupriya"
+    },
+    "que": {
+        "wiki_id": "qu",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Quechua"
+    },
+    "mon": {
+        "wiki_id": "mn",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Mongolian"
+    },
+    "ibo": {
+        "wiki_id": "ig",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Igbo"
+    },
+    "nav": {
+        "wiki_id": "nv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Navajo"
+    },
+    "ban": {
+        "wiki_id": "ban",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Balinese"
+    },
+    "xmf": {
+        "wiki_id": "xmf",
+        "scripts": [
+            "Geor"
+        ],
+        "language": "Mingrelian"
+    },
+    "sin": {
+        "wiki_id": "si",
+        "scripts": [
+            "Sinh"
+        ],
+        "language": "Sinhala"
+    },
+    "frr": {
+        "wiki_id": "frr",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Northern Frisian"
+    },
+    "mzn": {
+        "wiki_id": "mzn",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Mazanderani"
+    },
+    "tum": {
+        "wiki_id": "tum",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tumbuka"
+    },
+    "pus": {
+        "wiki_id": "ps",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Pashto"
+    },
+    "oss": {
+        "wiki_id": "os",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Ossetic"
+    },
+    "ori": {
+        "wiki_id": "or",
+        "scripts": [
+            "Orya"
+        ],
+        "language": "Odia"
+    },
+    "sgs": {
+        "wiki_id": "bat-smg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Samogitian"
+    },
+    "sah": {
+        "wiki_id": "sah",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Yakut"
+    },
+    "cdo": {
+        "wiki_id": "cdo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Min Dong Chinese"
+    },
+    "bcl": {
+        "wiki_id": "bcl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Central Bikol"
+    },
+    "gla": {
+        "wiki_id": "gd",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Scottish Gaelic"
+    },
+    "bug": {
+        "wiki_id": "bug",
+        "scripts": [
+            "Bugi"
+        ],
+        "language": "Buginese"
+    },
+    "snd": {
+        "wiki_id": "sd",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Sindhi"
+    },
+    "yid": {
+        "wiki_id": "yi",
+        "scripts": [
+            "Hebr"
+        ],
+        "language": "Yiddish"
+    },
+    "ilo": {
+        "wiki_id": "ilo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Iloko"
+    },
+    "amh": {
+        "wiki_id": "am",
+        "scripts": [
+            "Ethi"
+        ],
+        "language": "Amharic"
+    },
+    "lim": {
+        "wiki_id": "li",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Limburgish"
+    },
+    "nap": {
+        "wiki_id": "nap",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Neapolitan"
+    },
+    "gor": {
+        "wiki_id": "gor",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Gorontalo"
+    },
+    "fao": {
+        "wiki_id": "fo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Faroese"
+    },
+    "mai": {
+        "wiki_id": "mai",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Maithili"
+    },
+    "hsb": {
+        "wiki_id": "hsb",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Upper Sorbian"
+    },
+    "shn": {
+        "wiki_id": "shn",
+        "scripts": [
+            "Mymr"
+        ],
+        "language": "Shan"
+    },
+    "eml": {
+        "wiki_id": "eml",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Emiliano-Romagnolo"
+    },
+    "ace": {
+        "wiki_id": "ace",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Achinese"
+    },
+    "asm": {
+        "wiki_id": "as",
+        "scripts": [
+            "Beng"
+        ],
+        "language": "Assamese"
+    },
+    "san": {
+        "wiki_id": "sa",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Sanskrit"
+    },
+    "wln": {
+        "wiki_id": "wa",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Walloon"
+    },
+    "ile": {
+        "wiki_id": "ie",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Interlingue"
+    },
+    "hyw": {
+        "wiki_id": "hyw",
+        "scripts": [
+            "Armn"
+        ],
+        "language": "Western Armenian"
+    },
+    "sna": {
+        "wiki_id": "sn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Shona"
+    },
+    "mhr": {
+        "wiki_id": "mhr",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Eastern Mari"
+    },
+    "lij": {
+        "wiki_id": "lij",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ligurian"
+    },
+    "zul": {
+        "wiki_id": "zu",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Zulu"
+    },
+    "hif": {
+        "wiki_id": "hif",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Fiji Hindi"
+    },
+    "bjn": {
+        "wiki_id": "bjn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Banjar"
+    },
+    "mrj": {
+        "wiki_id": "mrj",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Western Mari"
+    },
+    "khm": {
+        "wiki_id": "km",
+        "scripts": [
+            "Khmr"
+        ],
+        "language": "Khmer"
+    },
+    "mni": {
+        "wiki_id": "mni",
+        "scripts": [
+            "Mtei"
+        ],
+        "language": "Manipuri"
+    },
+    "hak": {
+        "wiki_id": "hak",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Hakka Chinese"
+    },
+    "sat": {
+        "wiki_id": "sat",
+        "scripts": [
+            "Olck"
+        ],
+        "language": "Santali"
+    },
+    "ary": {
+        "wiki_id": "ary",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Moroccan Arabic"
+    },
+    "roa-tara": {
+        "wiki_id": "roa-tara",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tarantino"
+    },
+    "pam": {
+        "wiki_id": "pam",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Pampanga"
+    },
+    "rue": {
+        "wiki_id": "rue",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Rusyn"
+    },
+    "bho": {
+        "wiki_id": "bh",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Bhojpuri"
+    },
+    "nso": {
+        "wiki_id": "nso",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Northern Sotho"
+    },
+    "dag": {
+        "wiki_id": "dag",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Dagbani"
+    },
+    "cos": {
+        "wiki_id": "co",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Corsican"
+    },
+    "som": {
+        "wiki_id": "so",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Somali"
+    },
+    "vls": {
+        "wiki_id": "vls",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "West Flemish"
+    },
+    "mri": {
+        "wiki_id": "mi",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "M\u0101ori"
+    },
+    "myv": {
+        "wiki_id": "myv",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Erzya"
+    },
+    "sme": {
+        "wiki_id": "se",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Northern Sami"
+    },
+    "srd": {
+        "wiki_id": "sc",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sardinian"
+    },
+    "bod": {
+        "wiki_id": "bo",
+        "scripts": [
+            "Tibt"
+        ],
+        "language": "Tibetan"
+    },
+    "vep": {
+        "wiki_id": "vep",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Veps"
+    },
+    "cor": {
+        "wiki_id": "kw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Cornish"
+    },
+    "glk": {
+        "wiki_id": "glk",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Gilaki"
+    },
+    "tuk": {
+        "wiki_id": "tk",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Turkmen"
+    },
+    "kab": {
+        "wiki_id": "kab",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kabyle"
+    },
+    "gan": {
+        "wiki_id": "gan",
+        "scripts": [
+            "Hani"
+        ],
+        "language": "Gan Chinese"
+    },
+    "kin": {
+        "wiki_id": "rw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kinyarwanda"
+    },
+    "vro": {
+        "wiki_id": "fiu-vro",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "V\u00f5ro"
+    },
+    "glv": {
+        "wiki_id": "gv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Manx"
+    },
+    "zea": {
+        "wiki_id": "zea",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Zeelandic"
+    },
+    "abk": {
+        "wiki_id": "ab",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Abkhazian"
+    },
+    "uig": {
+        "wiki_id": "ug",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Uyghur"
+    },
+    "nah": {
+        "wiki_id": "nah",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "N\u0101huatl"
+    },
+    "mlt": {
+        "wiki_id": "mt",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Maltese"
+    },
+    "skr": {
+        "wiki_id": "skr",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Saraiki"
+    },
+    "frp": {
+        "wiki_id": "frp",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Arpitan"
+    },
+    "tly": {
+        "wiki_id": "tly",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Talysh"
+    },
+    "udm": {
+        "wiki_id": "udm",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Udmurt"
+    },
+    "pcd": {
+        "wiki_id": "pcd",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Picard"
+    },
+    "grn": {
+        "wiki_id": "gn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Guarani"
+    },
+    "kom": {
+        "wiki_id": "kv",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Komi"
+    },
+    "csb": {
+        "wiki_id": "csb",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kashubian"
+    },
+    "smn": {
+        "wiki_id": "smn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Inari Sami"
+    },
+    "aym": {
+        "wiki_id": "ay",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Aymara"
+    },
+    "nrm": {
+        "wiki_id": "nrm",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Norman"
+    },
+    "kas": {
+        "wiki_id": "ks",
+        "scripts": [
+            "Arab"
+        ],
+        "language": "Kashmiri"
+    },
+    "lez": {
+        "wiki_id": "lez",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Lezghian"
+    },
+    "olo": {
+        "wiki_id": "olo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Livvi-Karelian"
+    },
+    "mwl": {
+        "wiki_id": "mwl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Mirandese"
+    },
+    "lfn": {
+        "wiki_id": "lfn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lingua Franca Nova"
+    },
+    "mdf": {
+        "wiki_id": "mdf",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Moksha"
+    },
+    "kaa": {
+        "wiki_id": "kaa",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kara-Kalpak"
+    },
+    "stq": {
+        "wiki_id": "stq",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Saterland Frisian"
+    },
+    "ang": {
+        "wiki_id": "ang",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Old English"
+    },
+    "lao": {
+        "wiki_id": "lo",
+        "scripts": [
+            "Laoo"
+        ],
+        "language": "Lao"
+    },
+    "fur": {
+        "wiki_id": "fur",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Friulian"
+    },
+    "roh": {
+        "wiki_id": "rm",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Romansh"
+    },
+    "ext": {
+        "wiki_id": "ext",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Extremaduran"
+    },
+    "twi": {
+        "wiki_id": "tw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Twi"
+    },
+    "lad": {
+        "wiki_id": "lad",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ladino"
+    },
+    "gom": {
+        "wiki_id": "gom",
+        "scripts": [
+            "Deva",
+            "Latn",
+            "Knda"
+        ],
+        "language": "Goan Konkani"
+    },
+    "pap": {
+        "wiki_id": "pap",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Papiamento"
+    },
+    "tyv": {
+        "wiki_id": "tyv",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Tuvinian"
+    },
+    "koi": {
+        "wiki_id": "koi",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Komi-Permyak"
+    },
+    "lin": {
+        "wiki_id": "ln",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lingala"
+    },
+    "ava": {
+        "wiki_id": "av",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Avaric"
+    },
+    "dsb": {
+        "wiki_id": "dsb",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lower Sorbian"
+    },
+    "dty": {
+        "wiki_id": "dty",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Doteli"
+    },
+    "cbk": {
+        "wiki_id": "cbk-zam",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Chavacano"
+    },
+    "div": {
+        "wiki_id": "dv",
+        "scripts": [
+            "Thaa"
+        ],
+        "language": "Divehi"
+    },
+    "ksh": {
+        "wiki_id": "ksh",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Colognian"
+    },
+    "lug": {
+        "wiki_id": "lg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ganda"
+    },
+    "zha": {
+        "wiki_id": "za",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Zhuang"
+    },
+    "gag": {
+        "wiki_id": "gag",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Gagauz"
+    },
+    "bxr": {
+        "wiki_id": "bxr",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Russia Buriat"
+    },
+    "pfl": {
+        "wiki_id": "pfl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Palatine German"
+    },
+    "szy": {
+        "wiki_id": "szy",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sakizaya"
+    },
+    "blk": {
+        "wiki_id": "blk",
+        "scripts": [
+            "Mymr"
+        ],
+        "language": "Pa'O"
+    },
+    "tay": {
+        "wiki_id": "tay",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tayal"
+    },
+    "pag": {
+        "wiki_id": "pag",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Pangasinan"
+    },
+    "pli": {
+        "wiki_id": "pi",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Pali"
+    },
+    "haw": {
+        "wiki_id": "haw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Hawaiian"
+    },
+    "awa": {
+        "wiki_id": "awa",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Awadhi"
+    },
+    "inh": {
+        "wiki_id": "inh",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Ingush"
+    },
+    "krc": {
+        "wiki_id": "krc",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Karachay-Balkar"
+    },
+    "pdc": {
+        "wiki_id": "pdc",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Pennsylvania German"
+    },
+    "ton": {
+        "wiki_id": "to",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tongan"
+    },
+    "atj": {
+        "wiki_id": "atj",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Atikamekw"
+    },
+    "tcy": {
+        "wiki_id": "tcy",
+        "scripts": [
+            "Knda"
+        ],
+        "language": "Tulu"
+    },
+    "arc": {
+        "wiki_id": "arc",
+        "scripts": [
+            "Syrc"
+        ],
+        "language": "Aramaic"
+    },
+    "mnw": {
+        "wiki_id": "mnw",
+        "scripts": [
+            "Mymr"
+        ],
+        "language": "Mon"
+    },
+    "shi": {
+        "wiki_id": "shi",
+        "scripts": [
+            "Latn",
+            "Tfng"
+        ],
+        "language": "Tachelhit"
+    },
+    "xal": {
+        "wiki_id": "xal",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Kalmyk"
+    },
+    "ful": {
+        "wiki_id": "ff",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Fula"
+    },
+    "jam": {
+        "wiki_id": "jam",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Jamaican Creole English"
+    },
+    "kbp": {
+        "wiki_id": "kbp",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kabiye"
+    },
+    "xho": {
+        "wiki_id": "xh",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Xhosa"
+    },
+    "wol": {
+        "wiki_id": "wo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Wolof"
+    },
+    "nia": {
+        "wiki_id": "nia",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Nias"
+    },
+    "anp": {
+        "wiki_id": "anp",
+        "scripts": [
+            "Deva"
+        ],
+        "language": "Angika"
+    },
+    "orm": {
+        "wiki_id": "om",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Oromo"
+    },
+    "kbd": {
+        "wiki_id": "kbd",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Kabardian"
+    },
+    "nov": {
+        "wiki_id": "nov",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Novial"
+    },
+    "kik": {
+        "wiki_id": "ki",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kikuyu"
+    },
+    "nqo": {
+        "wiki_id": "nqo",
+        "scripts": [
+            "Nkoo"
+        ],
+        "language": "N\u2019Ko"
+    },
+    "bis": {
+        "wiki_id": "bi",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Bislama"
+    },
+    "tpi": {
+        "wiki_id": "tpi",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tok Pisin"
+    },
+    "tet": {
+        "wiki_id": "tet",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tetum"
+    },
+    "rup": {
+        "wiki_id": "roa-rup",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Aromanian"
+    },
+    "jbo": {
+        "wiki_id": "jbo",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Lojban"
+    },
+    "zgh": {
+        "wiki_id": "zgh",
+        "scripts": [
+            "Tfng"
+        ],
+        "language": "Standard Moroccan Tamazight"
+    },
+    "tsn": {
+        "wiki_id": "tn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tswana"
+    },
+    "fij": {
+        "wiki_id": "fj",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Fijian"
+    },
+    "kon": {
+        "wiki_id": "kg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kongo"
+    },
+    "lbe": {
+        "wiki_id": "lbe",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Lak"
+    },
+    "guw": {
+        "wiki_id": "guw",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Gun"
+    },
+    "tah": {
+        "wiki_id": "ty",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tahitian"
+    },
+    "chu": {
+        "wiki_id": "cu",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Church Slavic"
+    },
+    "rmy": {
+        "wiki_id": "rmy",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Vlax Romani"
+    },
+    "trv": {
+        "wiki_id": "trv",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Taroko"
+    },
+    "mad": {
+        "wiki_id": "mad",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Madurese"
+    },
+    "ami": {
+        "wiki_id": "ami",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Amis"
+    },
+    "srn": {
+        "wiki_id": "srn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sranan Tongo"
+    },
+    "alt": {
+        "wiki_id": "alt",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Southern Altai"
+    },
+    "smo": {
+        "wiki_id": "sm",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Samoan"
+    },
+    "ltg": {
+        "wiki_id": "ltg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Latgalian"
+    },
+    "gcr": {
+        "wiki_id": "gcr",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Guianan Creole"
+    },
+    "chr": {
+        "wiki_id": "chr",
+        "scripts": [
+            "Cher"
+        ],
+        "language": "Cherokee"
+    },
+    "nya": {
+        "wiki_id": "ny",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Nyanja"
+    },
+    "pcm": {
+        "wiki_id": "pcm",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Nigerian Pidgin"
+    },
+    "dga": {
+        "wiki_id": "dga",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Dagaare"
+    },
+    "sot": {
+        "wiki_id": "st",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Southern Sotho"
+    },
+    "gpe": {
+        "wiki_id": "gpe",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ghanaian Pidgin"
+    },
+    "pih": {
+        "wiki_id": "pih",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Norfuk / Pitkern"
+    },
+    "kcg": {
+        "wiki_id": "kcg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tyap"
+    },
+    "got": {
+        "wiki_id": "got",
+        "scripts": [
+            "Goth"
+        ],
+        "language": "Gothic"
+    },
+    "ssw": {
+        "wiki_id": "ss",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Swati"
+    },
+    "gur": {
+        "wiki_id": "gur",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Frafra"
+    },
+    "ewe": {
+        "wiki_id": "ee",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Ewe"
+    },
+    "bam": {
+        "wiki_id": "bm",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Bambara"
+    },
+    "tso": {
+        "wiki_id": "ts",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Tsonga"
+    },
+    "ven": {
+        "wiki_id": "ve",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Venda"
+    },
+    "bbc": {
+        "wiki_id": "bbc",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Batak Toba"
+    },
+    "chy": {
+        "wiki_id": "chy",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Cheyenne"
+    },
+    "run": {
+        "wiki_id": "rn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Rundi"
+    },
+    "ipk": {
+        "wiki_id": "ik",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Inupiaq"
+    },
+    "fon": {
+        "wiki_id": "fon",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Fon"
+    },
+    "cha": {
+        "wiki_id": "ch",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Chamorro"
+    },
+    "ady": {
+        "wiki_id": "ady",
+        "scripts": [
+            "Cyrl"
+        ],
+        "language": "Adyghe"
+    },
+    "guc": {
+        "wiki_id": "guc",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Wayuu"
+    },
+    "fat": {
+        "wiki_id": "fat",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Fanti"
+    },
+    "pnt": {
+        "wiki_id": "pnt",
+        "scripts": [
+            "Grek"
+        ],
+        "language": "Pontic"
+    },
+    "iku": {
+        "wiki_id": "iu",
+        "scripts": [
+            "Cans"
+        ],
+        "language": "Inuktitut"
+    },
+    "pwn": {
+        "wiki_id": "pwn",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Paiwan"
+    },
+    "sag": {
+        "wiki_id": "sg",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Sango"
+    },
+    "din": {
+        "wiki_id": "din",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Dinka"
+    },
+    "tir": {
+        "wiki_id": "ti",
+        "scripts": [
+            "Ethi"
+        ],
+        "language": "Tigrinya"
+    },
+    "kal": {
+        "wiki_id": "kl",
+        "scripts": [
+            "Latn"
+        ],
+        "language": "Kalaallisut"
+    },
+    "dzo": {
+        "wiki_id": "dz",
+        "scripts": [
+            "Tibt"
+        ],
+        "language": "Dzongkha"
+    },
+    "cre": {
+        "wiki_id": "cr",
+        "scripts": [
+            "Cans"
+        ],
+        "language": "Cree"
+    }
+}

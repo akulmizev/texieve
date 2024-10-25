@@ -1,0 +1,18 @@
+languages:
+  - "your-language-1"
+  - "your-language-2"
+
+# load_path: "your-load-path"
+
+sources: # wiki, bible, mc4, nllb supported
+  - "your-source-1"
+  - "your-source-2"
+
+language_sampling:
+  sampling_strategy: "temperature"
+  temperature: 3.0
+
+streaming: true
+
+export: true
+push_to_hub: true

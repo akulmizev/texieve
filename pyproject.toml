@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wqe"
+version = "2024.06.10"
+requires-python = ">=3.10"
+authors = [
+    {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
+    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+]
+maintainers = [
+    {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
+    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+]
+description = "A package for loading and filtering Wikipedia data."
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"]
+dependencies = [
+    "lm_eval@git+https://github.com/EleutherAI/lm-evaluation-harness",
+    "hydra-core",
+    "datasets",
+    "tokenizers",
+    "transformers",
+    "accelerate",
+    "peft",
+    "bitsandbytes",
+    "fasttext",
+    "nltk",
+    "evaluate",
+    "sentencepiece",
+    "scikit-learn",
+    "seqeval",
+    "wandb",
+    "datasketch",
+    "submitit",
+    "kneed"
+]
+
+[project.scripts]
+wqe = "wqe.cli.cli:run_experiment"
+
+[project.urls]
+"Homepage" = "https://github.com/kushaltatariya/Wikipedia_Quality_Estimation"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"wqe.data" = ["resources/wiki_mappings.json"]
