@@ -542,8 +542,8 @@ class Partition:
         else:
             if len(self.metrics) > 1:
                 logger.warning(
-                    "Multiple metrics passed, but no join_method specified."
-                    " Combining and scoring metrics instead."
+                    "Multiple metrics passed, but no join_method specified. "
+                    "Combining and scoring metrics instead."
                 )
                 dataset = self.combine_and_score_metrics(dataset)
                 self.metrics = ["combined_metrics"]
@@ -621,7 +621,7 @@ class Partition:
 
     def join_partitions(self, dataset) -> List[int]:
         if len(self.metrics) == 1:
-            logger.warning("Only one metric passed, but join_method specified.")
+            logger.warning("Only one metric passed, but join method specified.")
 
         if self.join_partitions_by == "intersection":
             partition_indices = [

@@ -3,21 +3,36 @@ languages:
 
 # load_path: "your-load-path"
 
-# sources: # wiki, bible, mc4, nllb supported
-#   - "your-source"
+sources: # wiki, bible, mc4, nllb supported
+  - "wiki"
 
 pre_filter:
   script_regex: true
   lang_id: false
-  deduplicate_exact_match: true
-  deduplicate_min_hash: true
-  num_proc: 16
-  char_cutoff: 10
+
+deduplicate:
+  exact_match: true
+  min_hash: true
+  n_shingles: 3
+  jaccard_threshold: 0.85
+
+threshold:
+  thresholds:
+    length_words: 50
+    doc_mean_word_length: 3
+    frac_lines_end_ellipsis: 0.3
+    frac_symbol_to_words: 0.1
+    frac_no_script_words: 0.8
 
 partition:
-  method: "balanced_chars"
-  metric: ["length", "unique_trigrams", "unique_words", "unique_characters", "unique_character_trigrams"]
-  join_method: "intersection"
+  metrics:
+    - "length_words"
+    - "doc_mean_word_length"
+    - "frac_lines_end_ellipsis"
+    - "frac_symbol_to_words"
+    - "frac_no_script_words"
+  split_method: "balanced_chars"
+  quality: true
 
 split:
   test_size: 0.1

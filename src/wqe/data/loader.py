@@ -1,7 +1,7 @@
 import json
+import importlib.resources as pkg_resources
 import logging
 import os
-import importlib.resources as pkg_resources
 import numpy as np
 
 from collections import defaultdict
@@ -87,7 +87,7 @@ class LangID:
             self.sources = lang["sources"]
         except KeyError:
             raise ValueError(
-                f"Invalid ISO 639-3 code: {self.id}. Please choose a code."
+                f"Invalid ISO 639-3 code: {self.id}. Please choose a code. "
                 f"Use `MonolingualLoader.show_available_languages()` to see supported languages."
             )
 
@@ -111,14 +111,9 @@ class BaseLoader:
 
     SUPPORTED_SOURCES = ["wiki", "mc4", "bible", "nllb"]
 
-    def __init__(self, sources: List[str] = None):
+    def __init__(self, *args, **kwargs):
         """
         Initializes the BaseLoader instance.
-
-        Parameters
-        ----------
-        sources : List[str], optional
-            The sources from which the data should be loaded.
         """
         self.data: Optional[Union[DatasetDict, IterableDatasetDict]] = None
         self.n_chars: int = 0
@@ -143,13 +138,15 @@ class BaseLoader:
         """
         raise NotImplementedError("Subclass must implement abstract method")
 
-    def from_dataset(self):
+    @classmethod
+    def from_dataset(cls, **kwargs) -> "BaseLoader":
         """
         Abstract method to initialize the loader from a dataset. Must be implemented in the subclass.
         """
         raise NotImplementedError("Subclass must implement abstract method")
 
-    def from_config(self):
+    @classmethod
+    def from_config(cls, config: DatasetConfig) -> "BaseLoader":
         """
         Abstract method to initialize the loader from a configuration. Must be implemented in the subclass.
         """
@@ -210,7 +207,7 @@ class BaseLoader:
         """
         assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
         if self.streaming:
-            doc = self.data.take(1)
+            doc = self.data["train"].take(1)
             return doc["text"][0]
         else:
             idx = choice(range(len(self.data["train"]["text"]))) if idx is None else idx
@@ -227,14 +224,15 @@ class BaseLoader:
         print(
             f"{'ISO 693-3':<15}{'Language':<30}{'639-3':<10}{'Scripts':<30}{'Sources':<40}"
         )
-        print("-" * 88)
+        print("-" * 120)
         for iso3, data in sorted(lang_mappings.items(), key=lambda x: x[1]["language"]):
             scripts = ", ".join(data["scripts"])
             sources = ", ".join(data["sources"])
+            language = data["language"]
+            if len(data["language"]) > 30:
+                language = f"{data['language'][:26]}... "
 
-            print(
-                f"{iso3:<15}{data['language']:<40}{iso3:<10}{scripts:<30}{sources:<40}"
-            )
+            print(f"{iso3:<15}{language:<30}{iso3:<10}{scripts:<30}{sources:<40}")
 
     @staticmethod
     def get_column_names(
@@ -438,6 +436,7 @@ class BaseLoader:
         self,
         thresholds: Dict[str, Union[int, float, str]],
         tokenizer: str = None,
+        merge_test: bool = False,
         **kwargs,
     ) -> "BaseLoader":
         """
@@ -457,6 +456,10 @@ class BaseLoader:
         tokenizer : str
             Tokenizer to use for various metrics, e.g. length in words.
             If not provided, will split on whitespace.
+        merge_test : bool
+            Whether to merge the test split with the train split before thresholding.
+        kwargs : dict
+            Additional keyword arguments for the thresholding method.
 
         Returns
         -------
@@ -471,6 +474,12 @@ class BaseLoader:
                 "Convert to Dataset first via `.to_regular()`."
             )
             return self
+
+        if merge_test and "test" in self.data.keys():
+            logger.info("Concatenating train and test for thresholding...")
+            self.data = DatasetDict(
+                {"train": concatenate_datasets([self.data["train"], self.data["test"]])}
+            )
 
         tokenizer = (
             PreTrainedTokenizerFast.from_pretrained(tokenizer) if tokenizer else None
@@ -492,6 +501,7 @@ class BaseLoader:
         quality: bool = True,
         join_partitions_by: str = None,
         tokenizer: str = None,
+        merge_test: bool = False,
         **kwargs,
     ) -> "BaseLoader":
         """
@@ -525,6 +535,8 @@ class BaseLoader:
         tokenizer : str
             Tokenizer to use for various metrics, e.g. length in words.
             If not provided, will split on whitespace.
+        merge_test : bool
+            Whether to merge the test split with the train split before partitioning.
         kwargs : dict
             Additional keyword arguments for the partitioning method.
 
@@ -541,10 +553,10 @@ class BaseLoader:
             )
             return self
 
-        if "test" in self.data.keys():
-            logger.info("Concatenating train and test for partitioning...")
-            self.data["train"] = concatenate_datasets(
-                [self.data["train"], self.data["test"]]
+        if merge_test and "test" in self.data.keys():
+            logger.info("Concatenating train and test for thresholding...")
+            self.data = DatasetDict(
+                {"train": concatenate_datasets([self.data["train"], self.data["test"]])}
             )
 
         tokenizer = (
@@ -688,6 +700,7 @@ class MonolingualLoader(BaseLoader):
         super().__init__(sources)
         self.lang = LangID(lang_id)
         self.data = None
+        self.sources = []
         self.n_chars = 0
         self.n_docs = 0
         self.streaming = False
@@ -711,6 +724,8 @@ class MonolingualLoader(BaseLoader):
             The path to the dataset to load locally or from the huggingface hub.
             Will raise either `DatasetNotFoundError` if the dataset is not found in either location.
             If loading locally, assumes a directory structure of `load_path/{lang_id}`.
+        sources : List[str], optional
+            The sources from which the data should be loaded. Will load from all sources if not specified.
         split : str, optional
             The dataset split to load (e.g., "train", "test", "validation").
             Loads all splits if not specified.
@@ -867,7 +882,8 @@ class MonolingualLoader(BaseLoader):
         instance.update_counts()
 
         logger.info(
-            f"Loaded dataset with {instance.n_docs} articles and {instance.n_chars} characters (train). Streaming: {instance.streaming}"
+            f"Loaded dataset with {instance.n_docs} articles and {instance.n_chars} characters (train). "
+            f"Streaming: {instance.streaming}"
         )
 
         return instance
@@ -1097,14 +1113,6 @@ class MultilingualLoader(BaseLoader):
     Class for loading and preprocessing datasets for multiple languages.
     Behaves similarly to a datasets.Dataset object.
 
-    Parameters
-    ----------
-    lang_ids_or_loaders : Union[List[str], List[MonolingualLoader]]
-        Either a list of ISO 639-3 language codes or a list of MonolingualLoader instances.
-    sources : List[str], optional
-        The sources from which the data should be loaded.
-        Supported sources are "wiki", "c4", "bible", and "nllb".
-
     Attributes
     ----------
     loaders : Dict[str, MonolingualLoader]
@@ -1130,6 +1138,7 @@ class MultilingualLoader(BaseLoader):
         self.loaders = {}
         self.stats = {}
         self.data = None
+        self.sources = []
         self.streaming = False
 
         for lang_id in lang_ids:
@@ -1397,7 +1406,7 @@ class MultilingualLoader(BaseLoader):
         ), "Dataset not loaded. Run `load()` or `from_loaders()` first."
 
         combined_datasets = defaultdict(list)
-        for lang_id, loader in self.loaders.items():
+        for lang, loader in self.loaders.items():
             loader.pre_filter(
                 script_regex,
                 lang_id,
@@ -1406,13 +1415,13 @@ class MultilingualLoader(BaseLoader):
                 warn_percent,
                 **kwargs,
             )
-            self.stats[lang_id]["n_chars"] = loader.n_chars
-            self.stats[lang_id]["n_docs"] = loader.n_docs
+            self.stats[lang]["n_chars"] = loader.n_chars
+            self.stats[lang]["n_docs"] = loader.n_docs
 
             for split_name, dataset in loader.data.items():
                 column_names = self.get_column_names(dataset)
                 if "language" not in column_names:
-                    dataset = self._add_language_column(dataset, lang_id)
+                    dataset = self._add_language_column(dataset, lang)
                 combined_datasets[split_name].append(dataset)
 
         self.data = self._combine_datasets(combined_datasets)
@@ -1435,7 +1444,7 @@ class MultilingualLoader(BaseLoader):
             - "uniform": Equal probability for all languages.
             - "proportional": Probability proportional to the number of documents.
             - "inverse_proportional": Probability inversely proportional to the number of documents.
-            - "inverse_proportional_sqrt": Probability inversely proportional to the square root of the number of documents.
+            - "inverse_proportional_sqrt": Probability inversely proportional to the sqrt of the number of documents.
             - "temperature": Uses temperature-based sampling.
             Default is "uniform".
         temperature : float, optional

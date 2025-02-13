@@ -32,7 +32,6 @@ def find_elbow(x, y):
 
 def normalize(data):
     z_scores = stats.zscore(data)
-
     normalized = (z_scores - np.min(z_scores)) / (np.max(z_scores) - np.min(z_scores))
 
     return normalized

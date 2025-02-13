@@ -29,7 +29,7 @@ pip install -e .
 from wqe import MonolingualLoader, GOPHER_THRESHOLDS
 
 # Load the Hausa wiki, bible, and mc4 data
-hausa_loader = MonolingualLoader('ha')
+hausa_loader = MonolingualLoader('hau')
 hausa_loader.load(sources=["wiki", "bible", "mc4"])
 
 # Filter out non-official scripts
@@ -60,17 +60,27 @@ articles according to the longest articles.
 
 The output should look like this (note that partitioning by `balanced_chars` will split the data in half):
 ```
-INFO:wqe.data.loader:Loaded 36492 articles with 74084110 characters (train). Wiki: ha
-INFO:wqe.data.processing:Filtering documents for accepted scripts: Latn
-INFO:wqe.data.utils:Deleted: 25 docs (0.07%), 1785514 chars (2.41%), 1.77 MB (2.49%)
+INFO:wqe.data.loader:Loaded 292467 articles with 654755772 characters (train). Language: Hausa (hau). Sources: wiki, bible, mc4.
+INFO:wqe.data.processing:Filtering documents for accepted scripts: Latn, Brai, Arab
+Pre-filtering dataset. (num_proc=8): 100%|██████████| 292467/292467 [01:10<00:00, 4141.14 examples/s]
+Removing empty documents. (num_proc=8): 100%|██████████| 292467/292467 [00:01<00:00, 216677.71 examples/s]
+INFO:wqe.data.utils:Deleted: 1 docs (0.00%), 6336295 chars (0.97%), 10.59 MB (1.65%)
 INFO:wqe.data.processing:Deduplicating dataset.
 WARNING:wqe.data.processing:No tokenizer specified. Splitting on whitespace for minhash.
-INFO:wqe.data.utils:Deleted: 1831 docs (5.02%), 745601 chars (1.03%), 0.72 MB (1.03%)
+Flattening the indices: 100%|██████████| 292466/292466 [00:05<00:00, 54424.27 examples/s]
+Calculating hashes. (num_proc=8): 100%|██████████| 292466/292466 [03:49<00:00, 1274.98 examples/s]
+Querying hashing indices for duplicates.: 100%|██████████| 292466/292466 [01:14<00:00, 3913.98it/s]
+Removing duplicates. (num_proc=8): 100%|██████████| 292466/292466 [00:24<00:00, 12122.68 examples/s]
+INFO:wqe.data.utils:Deleted: 7528 docs (2.57%), 10356948 chars (1.60%), 10.02 MB (1.59%)
 INFO:wqe.data.processing:Thresholding dataset by length_words, doc_mean_word_length, frac_lines_end_ellipsis, frac_symbol_to_words, frac_no_script_words...
-INFO:wqe.data.utils:Deleted: 12315 docs (35.56%), 12839153 chars (17.94%), 12.35 MB (17.95%)
+Calculating metrics. (num_proc=8): 100%|██████████| 284938/284938 [00:51<00:00, 5522.67 examples/s]
+Applying thresholds (num_proc=8): 100%|██████████| 284938/284938 [00:14<00:00, 19599.43 examples/s]
+INFO:wqe.data.utils:Deleted: 123623 docs (43.39%), 176360514 chars (27.64%), 175.01 MB (28.22%)
+INFO:wqe.data.loader:Concatenating train and test for partitioning...
 INFO:wqe.data.processing:Partition splitting method set to 'balanced_chars'.
 INFO:wqe.data.processing:Partitioning dataset by length_chars...
-INFO:wqe.data.utils:Deleted: 19420 docs (87.00%), 29355328 chars (50.00%), 28.22 MB (49.98%)
+Calculating metrics. (num_proc=8): 100%|██████████| 161760/161760 [00:09<00:00, 17739.88 examples/s]
+INFO:wqe.data.utils:Deleted: 136424 docs (84.34%), 230875958 chars (50.00%), 221.71 MB (49.80%)
 ```
 
 Currently supported quality signals can be found in [./docs/metrics.md](./docs/metrics.md).
@@ -80,23 +90,23 @@ To see which languages are supported, call:
 ```python
 from wqe import MonolingualLoader
 
-MonolingualLoader.show_available_wikis()
+MonolingualLoader.show_available_languages()
 ```
 
 ... which outputs:
 
 ```commandline
-Wiki ID        Language                                639-3     Scripts
-----------------------------------------------------------------------------------------
-ab             Abkhazian                               abk       Cyrl
-ace            Achinese                                ace       Latn, Arab
-ady            Adyghe                                  ady       Cyrl
-af             Afrikaans                               afr       Latn
+ISO 693-3      Language                      639-3     Scripts                       Sources
+------------------------------------------------------------------------------------------------------------------------
+kud            'Auhelawa                     kud       Latn                          bible
+aau            Abau                          aau       Latn                          bible
+abk            Abkhazian                     abk       Geor, Cyrl, Latn              wiki
+acr            Achi                          acr       Latn                          bible
 ...
-diq            Zazaki                                  diq       Latn
-zea            Zeelandic                               zea       Latn
-za             Zhuang                                  zha       Hani, Latn
-zu             Zulu                                    zul       Latn
+zpq            Zoogocho Zapotec              zpq       Latn                          bible
+zul            Zulu                          zul       Brai, Latn                    wiki, mc4, nllb
+zyp            Zyphe Chin                    zyp       Latn                          bible
+aom            Ömie                          aom       Latn                          bible
 ```
 
 For details about the Python usage, see `./docs`.
@@ -107,7 +117,7 @@ wqe also provides a `hydra`-powered command line interface (CLI) for working wit
 To load, process, and partition the Hausa Wikipedia, run:
 
 ```commandline
-wqe --config-dir ./config/wqe +experiment=basic +dataset=basic
+wqe --config-dir ./config/example +experiment=basic +dataset=basic
 ```
 
 This assumes a directory structure like the following:
@@ -150,13 +160,18 @@ export: true
 push_to_hub: true
 ```
 
+Note: `basic.yaml` is a template file that can be copied and modified for different experiments. For example, to call a custom dataset config `custom.yaml`, run:
+
+```commandline
+wqe --config-dir ./config/example +experiment=basic +dataset=custom
+```
+
 The CLI assumes by default that the `experiment` config is provided, which contains
 high-level settings for the experiment, e.g.:
 
 ```yaml
 # config/wqe/experiment/basic.yaml
 
-wiki_id: "ha"
 experiment_id: "my_experiment"
 wandb_entity: "wikiquality" #optional
 local_path: "./experiments" #optional

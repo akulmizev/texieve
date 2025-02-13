@@ -22,9 +22,10 @@ class Deduplicate:
 
 @dataclass
 class Threshold:
-    thresholds: Dict[str, Union[int, float, str]]
+    thresholds: Dict[str, Union[int, float]]
     tokenizer: Optional[str] = None
     model: Optional[str] = None
+    merge_test: Optional[bool] = False
 
 
 @dataclass
@@ -35,6 +36,7 @@ class Partition:
     join_partitions_by: Optional[str] = None
     tokenizer: Optional[str] = None
     model: Optional[str] = None
+    merge_test: Optional[bool] = False
 
 
 @dataclass

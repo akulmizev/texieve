@@ -1,4 +1,4 @@
-experiment_id: "your-id"
-wandb_entity: "wikiquality"
-local_path: "./experiments"
-hub_path: "WikiQuality"
+experiment_id: "my-experiment"
+# wandb_entity: "your-wandb-entity"
+# local_path: "./my-path"
+# hub_path: "your-hf-hub-path"
