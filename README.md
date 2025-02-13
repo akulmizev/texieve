@@ -23,20 +23,20 @@ pip install -e .
 
 ## Example Usage in Python
 
-### Load and process the Hausa Wikipedia
+### Load and process datasets for Hausa
 
 ```python
 from wqe import MonolingualLoader, GOPHER_THRESHOLDS
 
-# Load the Hausa wiki
-wiki = MonolingualLoader('ha')
-wiki.load_dataset()
+# Load the Hausa wiki, bible, and mc4 data
+hausa_loader = MonolingualLoader('ha')
+hausa_loader.load(sources=["wiki", "bible", "mc4"])
 
 # Filter out non-official scripts
-wiki.pre_filter(script_regex=True)
+hausa_loader.pre_filter(script_regex=True)
 
 # Deduplicate via exact match and min-hash (3-grams)
-wiki.deduplicate(
+hausa_loader.deduplicate(
     exact_match=True,
     minhash=True,
     jaccard_threshold=0.8,
@@ -44,17 +44,17 @@ wiki.deduplicate(
 )
 
 # Apply Gopher quality signal thresholds
-wiki.apply_threshold(GOPHER_THRESHOLDS)
+hausa_loader.apply_threshold(GOPHER_THRESHOLDS)
 
 # Partition documents according to the longest articles
-wiki.apply_partition(
+hausa_loader.apply_partition(
     split_method="balanced_chars",
     metric="length_chars",
     quality=True
 )
 ```
-This will load the Hausa wiki via `wikimedia/wikipedia`
-on the huggingface `datasets` hub, filter out not-official scripts,
+This will load available Hausa data (from Wikipedia, MC4, and the bible) from
+the huggingface `datasets` hub, filter out not-official scripts,
 deduplicate the articles, apply GOPHER thresholds, and partition the
 articles according to the longest articles.
 
