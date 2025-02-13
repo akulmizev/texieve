@@ -13,6 +13,7 @@ from transformers import (
     DataCollatorForTokenClassification,
     DataCollatorWithPadding,
     PreTrainedTokenizerFast,
+    set_seed,
 )
 
 from .base import ModelFromConfig
@@ -90,6 +91,9 @@ class Tagger(ModelFromConfig):
         """
 
         self.label_set = dataset["train"].features["tags"].feature.names
+
+        if self.seed:
+            set_seed(seed=self.seed)
 
         self._model = AutoModelForTokenClassification.from_pretrained(
             self.load_path,

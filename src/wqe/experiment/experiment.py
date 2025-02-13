@@ -1,6 +1,5 @@
 import logging
 import os
-import json
 from dataclasses import asdict
 from typing import Any, Dict, Union
 from glob import glob
@@ -20,7 +19,6 @@ from ..utils.config import MainConfig
 from ..utils.validation import (
     validate_and_format_dataset,
     validate_and_format_splits,
-    np_encoder,
 )
 
 logging.basicConfig(level=logging.INFO)
@@ -64,7 +62,6 @@ class ExperimentRunner:
         self.tokenizer = None
         self.pretrain = None
         self.finetune = None
-
         self.languages = None
 
         self.__dict__.update(**config.__dict__)
@@ -300,10 +297,16 @@ class ExperimentRunner:
         cfg = self.finetune
         lang = LangID(cfg.eval_language)
         task = cfg.training_parameters.task
+
         if cfg.dataset_path:
-            finetune_dataset = validate_and_format_dataset(
-                cfg.dataset_path, lang, task, cfg.columns
-            )
+            if cfg.dataset_config:
+                finetune_dataset = validate_and_format_dataset(
+                    cfg.dataset_path, cfg.dataset_config, task, cfg.columns
+                )
+            else:
+                finetune_dataset = validate_and_format_dataset(
+                    cfg.dataset_path, self.lang.id, task, cfg.columns
+                )
         else:
             finetune_dataset = validate_and_format_splits(
                 cfg.train_path,
@@ -358,11 +361,12 @@ class ExperimentRunner:
         tokenizer: Union[HfTokenizerFromConfig, HfTokenizerFromConfig, None] = None,
     ) -> None:
         cfg = self.lm_eval
-        scores_file = (
-            f"{self.local_path}/{self.experiment.experiment_id}.{cfg.num_fewshot}_shots.lm_eval.scores.json"
-            if self.local_path
-            else None
-        )
+        # TODO What is up with this?
+        # scores_file = (
+        #     f"{self.local_path}/{self.experiment.experiment_id}.{cfg.num_fewshot}_shots.lm_eval.scores.json"
+        #     if self.local_path
+        #     else None
+        # )
 
         model_args = (
             asdict(cfg.model_inference_config) if cfg.model_inference_config else dict()
@@ -389,8 +393,9 @@ class ExperimentRunner:
             wandb_logger.post_init(results)
             wandb_logger.log_eval_result()
 
-        with open(scores_file, "w") as f:
-            json.dump(results, f, ensure_ascii=False, indent=2, default=np_encoder)
+        # TODO: Again, what is up with this?
+        # with open(scores_file, 'w') as f:
+        #     json.dump(results, f, ensure_ascii=False, indent=2, default=np_encoder)
 
     def run_experiment(self):
         """

@@ -541,6 +541,16 @@ class BaseLoader:
             )
             return self
 
+        if "test" in self.data.keys():
+            logger.info("Concatenating train and test for partitioning...")
+            self.data["train"] = concatenate_datasets(
+                [self.data["train"], self.data["test"]]
+            )
+
+        tokenizer = (
+            PreTrainedTokenizerFast.from_pretrained(tokenizer) if tokenizer else None
+        )
+
         tokenizer = (
             PreTrainedTokenizerFast.from_pretrained(tokenizer) if tokenizer else None
         )

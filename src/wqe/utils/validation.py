@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 def validate_and_format_dataset(
     load_path: str,
-    language: str,
+    config: str,
     task: str,
     columns: list,
 ) -> DatasetDict:
@@ -40,24 +40,23 @@ def validate_and_format_dataset(
         The loaded and formatted dataset.
     """
 
-    lang = LangID(language)
-
     try:
         logger.info(
-            f"Attempting to load dataset at {load_path} by wiki id: {lang.wiki_id}."
+            f"Attempting to load dataset at {load_path} by wiki id/config: {config}."
         )
-        dataset = load_dataset(load_path, lang.wiki_id, trust_remote_code=True)
+        dataset = load_dataset(load_path, config, trust_remote_code=True)
     except ValueError:
+        wiki = LangID(config)
         try:
             logger.warning(
-                f"Dataset not found. Attempting to load dataset by alpha3 code: {lang.id}."
+                f"Dataset not found. Attempting to load dataset by alpha3 code: {wiki.alpha3}."
             )
-            dataset = load_dataset(load_path, lang.id, trust_remote_code=True)
+            dataset = load_dataset(load_path, wiki.id, trust_remote_code=True)
         except (DatasetNotFoundError, FileNotFoundError, ValueError):
             raise ValueError(
                 f"Could not find language-specific partition.\n"
-                f"Tried `load_dataset({load_path}, {lang.wiki_id})`\n"
-                f"and `load_dataset({load_path}, {lang.id}).`\n"
+                f"Tried `load_dataset({load_path}, {wiki.id})`\n"
+                f"and `load_dataset({load_path}, {wiki.alpha3}).`\n"
             )
 
     logger.info("Dataset loaded successfully.")
@@ -159,7 +158,7 @@ def validate_and_format_splits(
     train_path: str,
     valid_path: str,
     test_path: str,
-    language: str,
+    wiki: str,
     task: str,
     columns: list,
 ) -> DatasetDict:
@@ -176,7 +175,7 @@ def validate_and_format_splits(
         The path to the validation split to load locally or from the huggingface hub.
     test_path: str
         The path to the test split to load locally or from the huggingface hub.
-    language : str
+    wiki : str
         The language identifier for the dataset being loaded (e.g. 'en').
     task : str
         The task for the dataset being loaded (e.g. 'ner').
@@ -190,7 +189,7 @@ def validate_and_format_splits(
         The loaded and formatted dataset.
     """
 
-    lang = LangID(language)
+    wiki = LangID(wiki)
 
     assert train_path, "A path to the train split must be provided."
     assert valid_path, "A path to the validation split must be provided."
@@ -203,18 +202,18 @@ def validate_and_format_splits(
     except DatasetNotFoundError:
         try:
             logger.info(
-                f"Dataset not found. Attempting to load dataset at {train_path} by wiki id: {lang.wiki_id}."
+                f"Dataset not found. Attempting to load dataset at {train_path} by wiki id: {wiki.id}."
             )
             train = load_dataset(
-                train_path, lang.wiki_id, split="train", trust_remote_code=True
+                train_path, wiki.id, split="train", trust_remote_code=True
             )
         except ValueError:
             try:
                 logger.warning(
-                    f"Dataset not found. Attempting to load dataset by alpha3 code: {lang.id}."
+                    f"Dataset not found. Attempting to load dataset by alpha3 code: {wiki.alpha3}."
                 )
                 train = load_dataset(
-                    train_path, lang.id, split="train", trust_remote_code=True
+                    train_path, wiki.alpha3, split="train", trust_remote_code=True
                 )
             except (DatasetNotFoundError, FileNotFoundError, ValueError):
                 raise ValueError("Could not find dataset.")
@@ -225,18 +224,18 @@ def validate_and_format_splits(
     except DatasetNotFoundError:
         try:
             logger.info(
-                f"Dataset not found. Attempting to load dataset at {valid_path} by wiki id: {lang.wiki_id}."
+                f"Dataset not found. Attempting to load dataset at {valid_path} by wiki id: {wiki.id}."
             )
             valid = load_dataset(
-                valid_path, lang.wiki_id, split="validation", trust_remote_code=True
+                valid_path, wiki.id, split="validation", trust_remote_code=True
             )
         except ValueError:
             try:
                 logger.warning(
-                    f"Dataset not found. Attempting to load dataset by alpha3 code: {lang.id}."
+                    f"Dataset not found. Attempting to load dataset by alpha3 code: {wiki.alpha3}."
                 )
                 valid = load_dataset(
-                    valid_path, lang.id, split="validation", trust_remote_code=True
+                    valid_path, wiki.alpha3, split="validation", trust_remote_code=True
                 )
             except (DatasetNotFoundError, FileNotFoundError, ValueError):
                 raise ValueError("Could not find dataset.")
@@ -247,18 +246,18 @@ def validate_and_format_splits(
     except DatasetNotFoundError:
         try:
             logger.info(
-                f"Dataset not found. Attempting to load dataset at {test_path} by wiki id: {lang.wiki_id}."
+                f"Dataset not found. Attempting to load dataset at {test_path} by wiki id: {wiki.id}."
             )
             test = load_dataset(
-                test_path, lang.wiki_id, split="test", trust_remote_code=True
+                test_path, wiki.id, split="test", trust_remote_code=True
             )
         except ValueError:
             try:
                 logger.warning(
-                    f"Dataset not found. Attempting to load dataset by alpha3 code: {lang.id}."
+                    f"Dataset not found. Attempting to load dataset by alpha3 code: {wiki.alpha3}."
                 )
                 test = load_dataset(
-                    test_path, lang.id, split="test", trust_remote_code=True
+                    test_path, wiki.alpha3, split="test", trust_remote_code=True
                 )
             except (DatasetNotFoundError, FileNotFoundError, ValueError):
                 raise ValueError("Could not find dataset.")
