@@ -1608,9 +1608,7 @@ class MultilingualLoader(BaseLoader):
         else:
             super().save(path)
 
-    def push_to_hub(
-        self, repo_id: str, save_loaders_separately: bool = False, **kwargs
-    ):
+    def push_to_hub(self, repo_id: str, save_loaders_together: bool = False, **kwargs):
         """
         Pushes the dataset to the specified repository on the Hugging Face Hub.
 
@@ -1618,14 +1616,14 @@ class MultilingualLoader(BaseLoader):
         ----------
         repo_id : str
             The repository ID on the Hugging Face Hub.
-        save_loaders_separately : bool
-            Whether to push each MonolingualLoader separately.
+        save_loaders_together : bool
+            Whether to all data as a single, concatenated dataset.
         """
-        if save_loaders_separately:
-            for lang_id, loader in self.loaders.items():
-                loader.push_to_hub(repo_id, lang_id, **kwargs)
-        else:
+        if save_loaders_together:
             super().push_to_hub(repo_id, **kwargs)
+        else:
+            for lang_id, loader in self.loaders.items():
+                loader.push_to_hub(repo_id, config_name=lang_id, **kwargs)
 
     def _get_sampling_probs(self, strategy: str = "uniform", temperature: float = 1.0):
         """

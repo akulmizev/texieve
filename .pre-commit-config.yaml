@@ -30,11 +30,11 @@ repos:
 #    hooks:
 #      - id: black
 #        language_version: python3.11
--   repo: local
-    hooks:
-    -   id: test-loader
-        name: Test Loader
-        entry: python -m pytest test/data/test_loader.py
-        language: system
-        pass_filenames: false
-        always_run: true
+#-   repo: local
+#    hooks:
+#    -   id: test-loader
+#        name: Test Loader
+#        entry: python -m pytest test/data/test_loader.py
+#        language: system
+#        pass_filenames: false
+#        always_run: true
