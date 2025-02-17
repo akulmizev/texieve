@@ -705,6 +705,12 @@ class MonolingualLoader(BaseLoader):
         self.n_docs = 0
         self.streaming = False
 
+    def __str__(self):
+        return f"MonolingualLoader for {self.lang.language} ({self.lang.id})"
+
+    def __repr__(self):
+        return f"MonolingualLoader(lang_id={self.lang.id}, sources={self.sources})"
+
     def load(
         self,
         load_path: str = None,
@@ -1145,6 +1151,12 @@ class MultilingualLoader(BaseLoader):
             self.loaders[lang_id] = MonolingualLoader(lang_id)
             self.stats[lang_id] = {"n_chars": 0, "n_docs": 0}
 
+    def __str__(self):
+        return f"MultilingualLoader for {len(self.loaders)} languages."
+
+    def __repr__(self):
+        return f"MultilingualLoader(lang_ids={list(self.loaders.keys())})"
+
     def load(
         self,
         load_path: Optional[str] = None,
@@ -1563,33 +1575,26 @@ class MultilingualLoader(BaseLoader):
         KeyError
             If the specified language is not in the MultilingualLoader.
         """
+
+        #TODO: There needs to be a more elegant solution to this, as certain operations that alter the data attribute
+        # (e.g. deduplicate, etc.) will not update the loaders and stats attributes. This will lead to inconsistencies
+        # between the data attribute and the loaders and stats attributes.
+
         if lang_id not in self.loaders:
             raise KeyError(f"Language '{lang_id}' not found in MultilingualLoader")
 
-        removed_loader = self.loaders.pop(lang_id)
-        del self.stats[lang_id]
+        self.loaders.pop(lang_id)
+        self.stats.pop(lang_id)
 
-        # Update the combined dataset
-        if self.data is not None:
-            for split in list(self.data.keys()):
-                if split in removed_loader.data:
-                    self.data[split] = self.data[split].filter(
-                        lambda example: example.get("language") != lang_id
-                    )
-                    # Remove the split if it's empty
-                    if isinstance(self.data[split], Dataset):
-                        is_empty = len(self.data[split]) == 0
-                    elif isinstance(self.data[split], IterableDataset):
-                        is_empty = next(iter(self.data[split]), None) is None
-                    else:
-                        raise ValueError(f"Unexpected dataset type for split {split}")
+        if len(self.loaders) == 0 and len(self.stats) == 0:
+            self.data = None
+        else:
+            combined_datasets = defaultdict(list)
+            for loader in self.loaders.values():
+                for split_name, dataset in loader.data.items():
+                    combined_datasets[split_name].append(dataset)
 
-                    if is_empty:
-                        self.data.pop(split)
-
-            # If all splits are empty, set data to None
-            if len(self.data.keys()) == 0:
-                self.data = None
+            self.data = self._combine_datasets(combined_datasets)
 
     def save(self, path: str, save_loaders_separately: bool = False):
         """
