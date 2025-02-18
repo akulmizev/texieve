@@ -26,7 +26,6 @@
         "wikipedia_id": "ar",
         "language": "Arabic",
         "scripts": [
-            "Latn",
             "Arab"
         ],
         "sources": [
@@ -321,8 +320,6 @@
         "wikipedia_id": "ko",
         "language": "Korean",
         "scripts": [
-            "Hani",
-            "Kore",
             "Hang"
         ],
         "sources": [
@@ -491,7 +488,6 @@
         "wikipedia_id": "zh-min-nan",
         "language": "Min Nan Chinese",
         "scripts": [
-            "Hani",
             "Latn"
         ],
         "sources": [
@@ -791,7 +787,6 @@
         "wikipedia_id": "cy",
         "language": "Welsh",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -1225,7 +1220,6 @@
         "wikipedia_id": "ee",
         "language": "Ewe",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -1239,7 +1233,6 @@
         "wikipedia_id": "ts",
         "language": "Tsonga",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -1263,9 +1256,7 @@
         "wikipedia_id": "az",
         "language": "Azerbaijani",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1277,9 +1268,7 @@
         "wikipedia_id": "bs",
         "language": "Bosnian",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1313,8 +1302,7 @@
         "wikipedia_id": "sah",
         "language": "Yakut",
         "scripts": [
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -1347,9 +1335,7 @@
         "wikipedia_id": "yo",
         "language": "Yoruba",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1512,7 +1498,6 @@
         "wikipedia_id": "es",
         "language": "Spanish",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -1607,11 +1592,8 @@
         "language": "Japanese",
         "scripts": [
             "Hani",
-            "Jpan",
             "Hira",
-            "Brai",
-            "Kana",
-            "Latn"
+            "Kana"
         ],
         "sources": [
             "wiki",
@@ -1747,9 +1729,6 @@
         "wikipedia_id": "mai",
         "language": "Maithili",
         "scripts": [
-            "Newa",
-            "Tirh",
-            "Kthi",
             "Deva"
         ],
         "sources": [
@@ -1806,9 +1785,7 @@
         "wikipedia_id": "mg",
         "language": "Malagasy",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1842,8 +1819,6 @@
         "wikipedia_id": "ga",
         "language": "Irish",
         "scripts": [
-            "Latg",
-            "Ogam",
             "Latn"
         ],
         "sources": [
@@ -1868,8 +1843,7 @@
         "wikipedia_id": "de",
         "language": "German",
         "scripts": [
-            "Latn",
-            "Brai"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1883,7 +1857,6 @@
         "wikipedia_id": "got",
         "language": "Gothic",
         "scripts": [
-            "Latn",
             "Goth"
         ],
         "sources": [
@@ -1941,10 +1914,7 @@
         "wikipedia_id": "su",
         "language": "Sundanese",
         "scripts": [
-            "Latn",
-            "Java",
-            "Sund",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -1968,8 +1938,7 @@
         "wikipedia_id": "rue",
         "language": "Rusyn",
         "scripts": [
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -2035,7 +2004,6 @@
         "wikipedia_id": "sk",
         "language": "Slovak",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -2072,8 +2040,6 @@
         "wikipedia_id": "ban",
         "language": "Balinese",
         "scripts": [
-            "Java",
-            "Bali",
             "Latn"
         ],
         "sources": [
@@ -2086,7 +2052,6 @@
         "wikipedia_id": "hak",
         "language": "Hakka Chinese",
         "scripts": [
-            "Hani",
             "Latn"
         ],
         "sources": [
@@ -2174,13 +2139,10 @@
     },
     "bel": {
         "bcp_47_code": "be",
-        "wikipedia_id": "be-tarask",
+        "wikipedia_id": "be",
         "language": "Belarusian",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -2194,7 +2156,6 @@
         "wikipedia_id": "cv",
         "language": "Chuvash",
         "scripts": [
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -2217,13 +2178,7 @@
         "wikipedia_id": "zh-classical",
         "language": "Chinese",
         "scripts": [
-            "Bopo",
-            "Hani",
-            "Arab",
-            "Brai",
-            "Hanb",
-            "Phag",
-            "Latn"
+            "Hani"
         ],
         "sources": [
             "wiki",
@@ -2283,8 +2238,7 @@
         "wikipedia_id": "th",
         "language": "Thai",
         "scripts": [
-            "Thai",
-            "Brai"
+            "Thai"
         ],
         "sources": [
             "wiki",
@@ -2410,8 +2364,7 @@
         "wikipedia_id": "lez",
         "language": "Lezghian",
         "scripts": [
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -2613,7 +2566,6 @@
         "wikipedia_id": "si",
         "language": "Sinhala",
         "scripts": [
-            "Brai",
             "Sinh"
         ],
         "sources": [
@@ -2672,8 +2624,6 @@
         "wikipedia_id": "ur",
         "language": "Urdu",
         "scripts": [
-            "Latn",
-            "Brai",
             "Arab"
         ],
         "sources": [
@@ -2688,10 +2638,6 @@
         "wikipedia_id": "simple",
         "language": "English",
         "scripts": [
-            "Dsrt",
-            "Shaw",
-            "Brai",
-            "Runr",
             "Latn"
         ],
         "sources": [
@@ -2817,9 +2763,7 @@
         "wikipedia_id": "ff",
         "language": "Fula",
         "scripts": [
-            "Latn",
-            "Adlm",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki"
@@ -2863,9 +2807,7 @@
         "wikipedia_id": "pa",
         "language": "Punjabi",
         "scripts": [
-            "Mahj",
-            "Guru",
-            "Arab"
+            "Guru"
         ],
         "sources": [
             "wiki",
@@ -2901,8 +2843,6 @@
         "wikipedia_id": "new",
         "language": "Newari",
         "scripts": [
-            "Ranj",
-            "Newa",
             "Deva"
         ],
         "sources": [
@@ -3079,7 +3019,6 @@
         "wikipedia_id": "kbp",
         "language": "Kabiy\u00e8",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -3182,8 +3121,7 @@
         "wikipedia_id": "hif",
         "language": "Fiji Hindi",
         "scripts": [
-            "Latn",
-            "Deva"
+            "Latn"
         ],
         "sources": [
             "wiki"
@@ -3205,8 +3143,7 @@
         "wikipedia_id": "am",
         "language": "Amharic",
         "scripts": [
-            "Ethi",
-            "Brai"
+            "Ethi"
         ],
         "sources": [
             "wiki",
@@ -3241,7 +3178,6 @@
         "wikipedia_id": "ny",
         "language": "Nyanja",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -3696,7 +3632,6 @@
         "wikipedia_id": "or",
         "language": "Odia",
         "scripts": [
-            "Brai",
             "Orya"
         ],
         "sources": [
@@ -3719,9 +3654,7 @@
         "wikipedia_id": "kaa",
         "language": "Kara-Kalpak",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki"
@@ -3799,8 +3732,7 @@
         "wikipedia_id": "min",
         "language": "Minangkabau",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -3879,7 +3811,6 @@
         "wikipedia_id": "id",
         "language": "Indonesian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -3894,7 +3825,6 @@
         "wikipedia_id": "tl",
         "language": "Filipino",
         "scripts": [
-            "Tglg",
             "Latn"
         ],
         "sources": [
@@ -3951,7 +3881,6 @@
         "wikipedia_id": "bh",
         "language": "Bhojpuri",
         "scripts": [
-            "Kthi",
             "Deva"
         ],
         "sources": [
@@ -4052,8 +3981,7 @@
         "wikipedia_id": "sw",
         "language": "Swahili",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -4434,9 +4362,7 @@
         "wikipedia_id": "crh",
         "language": "Crimean Tatar",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -4514,9 +4440,7 @@
         "wikipedia_id": "ce",
         "language": "Chechen",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -4538,11 +4462,7 @@
         "wikipedia_id": "ta",
         "language": "Tamil",
         "scripts": [
-            "Taml",
-            "Gran",
-            "Brai",
-            "Arab",
-            "Latn"
+            "Taml"
         ],
         "sources": [
             "wiki",
@@ -4579,7 +4499,6 @@
         "wikipedia_id": "nah",
         "language": "Nahuatl languages",
         "scripts": [
-            "",
             "Latn"
         ],
         "sources": [
@@ -4626,9 +4545,7 @@
         "wikipedia_id": "hu",
         "language": "Hungarian",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Hung"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -4653,7 +4570,6 @@
         "wikipedia_id": "sv",
         "language": "Swedish",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -4668,7 +4584,6 @@
         "wikipedia_id": "gd",
         "language": "Scottish Gaelic",
         "scripts": [
-            "Ogam",
             "Latn"
         ],
         "sources": [
@@ -4815,7 +4730,6 @@
         "wikipedia_id": "it",
         "language": "Italian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -4952,9 +4866,8 @@
         "wikipedia_id": "kk",
         "language": "Kazakh",
         "scripts": [
-            "Latn",
-            "Brai",
             "Cyrl",
+            "Latn",
             "Arab"
         ],
         "sources": [
@@ -5001,7 +4914,6 @@
         "wikipedia_id": "da",
         "language": "Danish",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -5071,8 +4983,7 @@
         "wikipedia_id": "gu",
         "language": "Gujarati",
         "scripts": [
-            "Gujr",
-            "Brai"
+            "Gujr"
         ],
         "sources": [
             "wiki",
@@ -5108,7 +5019,6 @@
         "wikipedia_id": "rmy",
         "language": "Vlax Romani",
         "scripts": [
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -5132,9 +5042,7 @@
         "wikipedia_id": "ro",
         "language": "Romanian",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Brai"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -5214,9 +5122,7 @@
         "wikipedia_id": "ka",
         "language": "Georgian",
         "scripts": [
-            "Geok",
-            "Geor",
-            "Brai"
+            "Geor"
         ],
         "sources": [
             "wiki",
@@ -5308,9 +5214,7 @@
         "wikipedia_id": "kab",
         "language": "Kabyle",
         "scripts": [
-            "Tfng",
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -5421,7 +5325,6 @@
         "wikipedia_id": "hy",
         "language": "Armenian",
         "scripts": [
-            "Brai",
             "Armn"
         ],
         "sources": [
@@ -5492,8 +5395,7 @@
         "wikipedia_id": "mad",
         "language": "Madurese",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki"
@@ -5504,10 +5406,8 @@
         "wikipedia_id": "tg",
         "language": "Tajik",
         "scripts": [
-            "Latn",
-            "Hebr",
             "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -5543,8 +5443,7 @@
         "wikipedia_id": "wo",
         "language": "Wolof",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -5568,8 +5467,7 @@
         "wikipedia_id": "uk",
         "language": "Ukrainian",
         "scripts": [
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -5583,10 +5481,7 @@
         "wikipedia_id": "sd",
         "language": "Sindhi",
         "scripts": [
-            "Guru",
-            "Arab",
-            "Sind",
-            "Deva"
+            "Arab"
         ],
         "sources": [
             "wiki",
@@ -5736,9 +5631,7 @@
         "wikipedia_id": "mni",
         "language": "Manipuri",
         "scripts": [
-            "Mtei",
-            "Latn",
-            "Beng"
+            "Mtei"
         ],
         "sources": [
             "wiki",
@@ -5842,9 +5735,7 @@
         "wikipedia_id": "sq",
         "language": "Albanian",
         "scripts": [
-            "Latn",
-            "Elba",
-            "Brai"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -5979,9 +5870,7 @@
         "wikipedia_id": "tly",
         "language": "Talysh",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki"
@@ -5992,11 +5881,7 @@
         "wikipedia_id": "sat",
         "language": "Santali",
         "scripts": [
-            "Olck",
-            "Beng",
-            "Deva",
-            "Latn",
-            "Orya"
+            "Olck"
         ],
         "sources": [
             "wiki",
@@ -6042,7 +5927,6 @@
         "wikipedia_id": "awa",
         "language": "Awadhi",
         "scripts": [
-            "Latn",
             "Deva"
         ],
         "sources": [
@@ -6211,9 +6095,7 @@
         "wikipedia_id": "fr",
         "language": "French",
         "scripts": [
-            "Brai",
-            "Latn",
-            "Dupl"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -6238,9 +6120,7 @@
         "wikipedia_id": "map-bms",
         "language": "Javanese",
         "scripts": [
-            "Latn",
-            "Java",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -6354,7 +6234,6 @@
         "wikipedia_id": "vi",
         "language": "Vietnamese",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -6518,8 +6397,7 @@
         "wikipedia_id": "chr",
         "language": "Cherokee",
         "scripts": [
-            "Cher",
-            "Latn"
+            "Cher"
         ],
         "sources": [
             "wiki"
@@ -6773,7 +6651,6 @@
         "wikipedia_id": "ve",
         "language": "Venda",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -6917,12 +6794,7 @@
         "wikipedia_id": "sa",
         "language": "Sanskrit",
         "scripts": [
-            "Sidd",
-            "Bhks",
-            "Gran",
-            "Shrd",
-            "Deva",
-            "Latn"
+            "Deva"
         ],
         "sources": [
             "wiki",
@@ -7069,9 +6941,7 @@
         "wikipedia_id": "inh",
         "language": "Ingush",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -7093,9 +6963,7 @@
         "wikipedia_id": "bm",
         "language": "Bambara",
         "scripts": [
-            "Latn",
-            "Nkoo",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -7185,7 +7053,6 @@
         "wikipedia_id": "sl",
         "language": "Slovenian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -7299,7 +7166,6 @@
         "wikipedia_id": "bn",
         "language": "Bangla",
         "scripts": [
-            "Brai",
             "Beng"
         ],
         "sources": [
@@ -7314,7 +7180,6 @@
         "wikipedia_id": "cu",
         "language": "Church Slavic",
         "scripts": [
-            "Glag",
             "Cyrl"
         ],
         "sources": [
@@ -7337,10 +7202,6 @@
         "wikipedia_id": "arc",
         "language": "Aramaic",
         "scripts": [
-            "Nbat",
-            "Armi",
-            "Palm",
-            "Hatr",
             "Syrc"
         ],
         "sources": [
@@ -7386,13 +7247,7 @@
         "wikipedia_id": "pi",
         "language": "Pali",
         "scripts": [
-            "Mymr",
-            "Sinh",
-            "Khmr",
-            "Deva",
-            "Thai",
-            "Khar",
-            "Brah"
+            "Deva"
         ],
         "sources": [
             "wiki"
@@ -7447,10 +7302,7 @@
         "wikipedia_id": "mn",
         "language": "Mongolian",
         "scripts": [
-            "Cyrl",
-            "Brai",
-            "Phag",
-            "Mong"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -7563,9 +7415,7 @@
         "wikipedia_id": "ady",
         "language": "Adyghe",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -7576,9 +7426,7 @@
         "wikipedia_id": "ab",
         "language": "Abkhazian",
         "scripts": [
-            "Geor",
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -7904,8 +7752,7 @@
         "wikipedia_id": "ru",
         "language": "Russian",
         "scripts": [
-            "Cyrl",
-            "Brai"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -8018,7 +7865,6 @@
         "wikipedia_id": "cs",
         "language": "Czech",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -8033,9 +7879,7 @@
         "wikipedia_id": "so",
         "language": "Somali",
         "scripts": [
-            "Osma",
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -8071,7 +7915,6 @@
         "wikipedia_id": "lv",
         "language": "Latvian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -8084,7 +7927,6 @@
         "wikipedia_id": "gag",
         "language": "Gagauz",
         "scripts": [
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -8096,7 +7938,6 @@
         "wikipedia_id": "zu",
         "language": "Zulu",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -8221,9 +8062,7 @@
         "wikipedia_id": "tk",
         "language": "Turkmen",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -8268,8 +8107,7 @@
         "wikipedia_id": "yi",
         "language": "Yiddish",
         "scripts": [
-            "Hebr",
-            "Latn"
+            "Hebr"
         ],
         "sources": [
             "wiki",
@@ -8281,8 +8119,6 @@
         "wikipedia_id": "ilo",
         "language": "Iloko",
         "scripts": [
-            "Tglg",
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -8329,7 +8165,6 @@
         "wikipedia_id": "pnb",
         "language": "Western Panjabi",
         "scripts": [
-            "Mahj",
             "Arab"
         ],
         "sources": [
@@ -8341,9 +8176,7 @@
         "wikipedia_id": "af",
         "language": "Afrikaans",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -8400,8 +8233,7 @@
         "wikipedia_id": "my",
         "language": "Burmese",
         "scripts": [
-            "Mymr",
-            "Brai"
+            "Mymr"
         ],
         "sources": [
             "wiki",
@@ -8415,8 +8247,7 @@
         "wikipedia_id": "xal",
         "language": "Kalmyk",
         "scripts": [
-            "Cyrl",
-            "Mong"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -8449,8 +8280,6 @@
         "wikipedia_id": "mr",
         "language": "Marathi",
         "scripts": [
-            "Brai",
-            "Modi",
             "Deva"
         ],
         "sources": [
@@ -8476,9 +8305,9 @@
         "wikipedia_id": "gom",
         "language": "Goan Konkani",
         "scripts": [
-            "Knda",
+            "Deva",
             "Latn",
-            "Deva"
+            "Knda"
         ],
         "sources": [
             "wiki"
@@ -8555,9 +8384,7 @@
         "wikipedia_id": "pnt",
         "language": "Pontic",
         "scripts": [
-            "Grek",
-            "Cyrl",
-            "Latn"
+            "Grek"
         ],
         "sources": [
             "wiki"
@@ -8601,9 +8428,7 @@
         "wikipedia_id": "os",
         "language": "Ossetic",
         "scripts": [
-            "Geor",
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -8614,9 +8439,7 @@
         "wikipedia_id": "ky",
         "language": "Kyrgyz",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -8652,8 +8475,7 @@
         "wikipedia_id": "te",
         "language": "Telugu",
         "scripts": [
-            "Telu",
-            "Brai"
+            "Telu"
         ],
         "sources": [
             "wiki",
@@ -8667,7 +8489,6 @@
         "wikipedia_id": "hr",
         "language": "Croatian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -8739,9 +8560,7 @@
         "wikipedia_id": "ha",
         "language": "Hausa",
         "scripts": [
-            "Latn",
-            "Brai",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -9044,7 +8863,6 @@
         "wikipedia_id": "et",
         "language": "Estonian",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -9080,7 +8898,6 @@
         "wikipedia_id": "za",
         "language": "Zhuang",
         "scripts": [
-            "Hani",
             "Latn"
         ],
         "sources": [
@@ -9170,8 +8987,6 @@
         "wikipedia_id": "ne",
         "language": "Nepali",
         "scripts": [
-            "Newa",
-            "Brai",
             "Deva"
         ],
         "sources": [
@@ -9284,10 +9099,7 @@
         "wikipedia_id": "ms",
         "language": "Malay",
         "scripts": [
-            "Latn",
-            "Thai",
-            "Brai",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -9542,9 +9354,7 @@
         "wikipedia_id": "bg",
         "language": "Bulgarian",
         "scripts": [
-            "Brai",
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -9643,9 +9453,7 @@
         "language": "Uzbek",
         "scripts": [
             "Latn",
-            "Brai",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -9679,8 +9487,7 @@
         "wikipedia_id": "mk",
         "language": "Macedonian",
         "scripts": [
-            "Cyrl",
-            "Brai"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -9693,10 +9500,7 @@
         "wikipedia_id": "ks",
         "language": "Kashmiri",
         "scripts": [
-            "Latn",
-            "Shrd",
-            "Arab",
-            "Deva"
+            "Arab"
         ],
         "sources": [
             "wiki",
@@ -9787,8 +9591,7 @@
         "wikipedia_id": "bjn",
         "language": "Banjar",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -9822,7 +9625,6 @@
         "wikipedia_id": "nso",
         "language": "Northern Sotho",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -9902,8 +9704,7 @@
         "wikipedia_id": "gan",
         "language": "Gan Chinese",
         "scripts": [
-            "Hani",
-            "Latn"
+            "Hani"
         ],
         "sources": [
             "wiki"
@@ -10101,8 +9902,6 @@
         "wikipedia_id": "sh",
         "language": "Serbian",
         "scripts": [
-            "Brai",
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -10139,7 +9938,6 @@
         "wikipedia_id": "pt",
         "language": "Portuguese",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -10154,7 +9952,6 @@
         "wikipedia_id": "xh",
         "language": "Xhosa",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -10226,8 +10023,7 @@
         "wikipedia_id": "ace",
         "language": "Achinese",
         "scripts": [
-            "Latn",
-            "Arab"
+            "Latn"
         ],
         "sources": [
             "wiki",
@@ -10349,7 +10145,6 @@
         "wikipedia_id": "sn",
         "language": "Shona",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -10485,8 +10280,7 @@
         "wikipedia_id": "cr",
         "language": "Cree",
         "scripts": [
-            "Cans",
-            "Latn"
+            "Cans"
         ],
         "sources": [
             "wiki"
@@ -10508,8 +10302,7 @@
         "wikipedia_id": "he",
         "language": "Hebrew",
         "scripts": [
-            "Hebr",
-            "Brai"
+            "Hebr"
         ],
         "sources": [
             "wiki",
@@ -11026,8 +10819,6 @@
         "wikipedia_id": "bo",
         "language": "Tibetan",
         "scripts": [
-            "Marc",
-            "Latn",
             "Tibt"
         ],
         "sources": [
@@ -11173,9 +10964,8 @@
         "wikipedia_id": "shi",
         "language": "Tachelhit",
         "scripts": [
-            "Tfng",
             "Latn",
-            "Arab"
+            "Tfng"
         ],
         "sources": [
             "wiki"
@@ -11400,9 +11190,6 @@
         "wikipedia_id": "hi",
         "language": "Hindi",
         "scripts": [
-            "Latn",
-            "Mahj",
-            "Brai",
             "Deva"
         ],
         "sources": [
@@ -11428,7 +11215,6 @@
         "wikipedia_id": "arz",
         "language": "Egyptian Arabic",
         "scripts": [
-            "Brai",
             "Arab"
         ],
         "sources": [
@@ -11451,7 +11237,6 @@
         "wikipedia_id": "lfn",
         "language": "Lingua Franca Nova",
         "scripts": [
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -11606,7 +11391,6 @@
         "wikipedia_id": "as",
         "language": "Assamese",
         "scripts": [
-            "Latn",
             "Beng"
         ],
         "sources": [
@@ -11620,8 +11404,7 @@
         "wikipedia_id": "lbe",
         "language": "Lak",
         "scripts": [
-            "Cyrl",
-            "Latn"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -11665,7 +11448,6 @@
         "wikipedia_id": "nl",
         "language": "Dutch",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -11691,8 +11473,7 @@
         "wikipedia_id": "kv",
         "language": "Komi",
         "scripts": [
-            "Cyrl",
-            "Perm"
+            "Cyrl"
         ],
         "sources": [
             "wiki"
@@ -11703,8 +11484,7 @@
         "wikipedia_id": "dv",
         "language": "Divehi",
         "scripts": [
-            "Thaa",
-            "Diak"
+            "Thaa"
         ],
         "sources": [
             "wiki"
@@ -11806,7 +11586,6 @@
         "wikipedia_id": "mt",
         "language": "Maltese",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -11842,10 +11621,7 @@
         "wikipedia_id": "ml",
         "language": "Malayalam",
         "scripts": [
-            "Mlym",
-            "Latn",
-            "Brai",
-            "Arab"
+            "Mlym"
         ],
         "sources": [
             "wiki",
@@ -11870,7 +11646,6 @@
         "wikipedia_id": "ang",
         "language": "Old English",
         "scripts": [
-            "Runr",
             "Latn"
         ],
         "sources": [
@@ -11915,8 +11690,6 @@
         "wikipedia_id": "ug",
         "language": "Uyghur",
         "scripts": [
-            "Latn",
-            "Cyrl",
             "Arab"
         ],
         "sources": [
@@ -12221,8 +11994,7 @@
         "wikipedia_id": "kn",
         "language": "Kannada",
         "scripts": [
-            "Knda",
-            "Brai"
+            "Knda"
         ],
         "sources": [
             "wiki",
@@ -12359,9 +12131,7 @@
         "wikipedia_id": "tt",
         "language": "Tatar",
         "scripts": [
-            "Latn",
-            "Cyrl",
-            "Arab"
+            "Cyrl"
         ],
         "sources": [
             "wiki",
@@ -12549,7 +12319,6 @@
         "wikipedia_id": "tr",
         "language": "Turkish",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -12575,8 +12344,7 @@
         "wikipedia_id": "el",
         "language": "Greek",
         "scripts": [
-            "Grek",
-            "Brai"
+            "Grek"
         ],
         "sources": [
             "wiki",
@@ -12589,7 +12357,6 @@
         "wikipedia_id": "fi",
         "language": "Finnish",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [
@@ -12659,8 +12426,6 @@
         "wikipedia_id": "lad",
         "language": "Ladino",
         "scripts": [
-            "Hebr",
-            "Cyrl",
             "Latn"
         ],
         "sources": [
@@ -12672,8 +12437,7 @@
         "wikipedia_id": "iu",
         "language": "Inuktitut",
         "scripts": [
-            "Cans",
-            "Latn"
+            "Cans"
         ],
         "sources": [
             "wiki"
@@ -12873,7 +12637,6 @@
         "wikipedia_id": "ceb",
         "language": "Cebuano",
         "scripts": [
-            "Brai",
             "Latn"
         ],
         "sources": [

@@ -174,3 +174,4 @@ cython_debug/
 config/*
 !config/example
 !config/model
+!config/weights
