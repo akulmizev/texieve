@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from dataclasses import asdict
@@ -109,6 +110,14 @@ class ExperimentRunner:
             )
             dataset.load(streaming=cfg.streaming)
 
+        if cfg.streaming and any(
+            [cfg.pre_filter, cfg.deduplicate, cfg.threshold, cfg.partition]
+        ):
+            logger.info(
+                "Streaming dataset detected. Converting to Dataset format for pre-processing. This might take a while."
+            )
+            dataset.to_regular()
+
         if cfg.pre_filter:
             dataset.pre_filter(**asdict(cfg.pre_filter))
 
@@ -123,6 +132,10 @@ class ExperimentRunner:
             dataset.apply_partition(**asdict(cfg.partition), keep_columns=False)
 
         if cfg.language_sampling:
+            if cfg.language_sampling.raw_weights:
+                cfg.language_sampling.raw_weights = json.load(
+                    open(cfg.language_sampling.raw_weights, "r")
+                )
             dataset.apply_language_sampling(**asdict(cfg.language_sampling))
 
         if cfg.split:
@@ -139,6 +152,10 @@ class ExperimentRunner:
                 self.hub_path is not None
             ), "Please specify `hub_path` in experiment config for pushing the dataset to the hub."
             dataset.push_to_hub(self.hub_path, private=True)
+
+        if cfg.streaming and not dataset.streaming:
+            logger.info("Converting back to streaming format.")
+            dataset.to_iterable()
 
         return dataset
 

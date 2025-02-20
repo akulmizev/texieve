@@ -2,10 +2,18 @@ import logging
 import regex as re
 import unicodedata
 
-from functools import wraps
-from typing import Dict, Iterator, List, Pattern, Union
+import numpy as np
 
-from datasets import Dataset, IterableDataset
+from functools import wraps
+from typing import Dict, Iterator, List, Pattern, Union, Tuple, Any
+
+from datasets import (
+    Dataset,
+    IterableDataset,
+    DatasetDict,
+    IterableDatasetDict,
+    concatenate_datasets,
+)
 from transformers import PreTrainedTokenizerFast
 
 logger = logging.getLogger(__name__)
@@ -101,3 +109,165 @@ def measure_deletion(func):
         return result_dataset
 
     return wrapper
+
+
+def convert_iterable_dataset_to_regular(dataset: IterableDataset) -> Dataset:
+    """
+    Converts an IterableDataset to a Dataset.
+
+    Parameters
+    ----------
+    dataset : IterableDataset
+        The IterableDataset to convert.
+
+    Returns
+    -------
+    Dataset
+        The converted Dataset.
+    """
+    return Dataset.from_generator(
+        lambda: (yield from dataset), features=dataset.features
+    )
+
+
+def add_column(
+    dataset: Union[Dataset, IterableDataset], column_name: str, column_value: str
+):
+    """
+    Adds a column to the dataset. Assumes all examples have the same value.
+
+    Parameters
+    ----------
+    dataset : Union[Dataset, IterableDataset]
+        The dataset to which the column will be added.
+    column_name : str
+        The name of the column to add.
+    column_value : str
+        The value to be added to all examples.
+
+    Returns
+    -------
+    Union[Dataset, IterableDataset]
+        The dataset with the added language column.
+    """
+    if isinstance(dataset, Dataset):
+        return dataset.add_column(column_name, [column_value] * dataset.num_rows)
+    elif isinstance(dataset, IterableDataset):
+        return dataset.map(lambda example: {**example, column_name: column_value})
+    else:
+        raise ValueError(
+            "Dataset backend must be a huggingface Dataset or IterableDataset"
+        )
+
+
+def get_column_names(
+    dataset: Union[Dataset, DatasetDict, IterableDataset, IterableDatasetDict],
+) -> List[str]:
+    """
+    Get column names from various dataset types.
+
+    Parameters
+    ----------
+    dataset : Union[Dataset, DatasetDict, IterableDataset, IterableDatasetDict]
+        The dataset to get column names from.
+
+    Returns
+    -------
+    List[str]
+        A list of column names.
+
+    Raises
+    ------
+    ValueError
+        If the dataset type is not supported.
+    """
+    if isinstance(dataset, (Dataset, DatasetDict)):
+        return (
+            dataset.column_names
+            if isinstance(dataset, Dataset)
+            else dataset["train"].column_names
+        )
+    elif isinstance(dataset, (IterableDataset, IterableDatasetDict)):
+        # For IterableDatasets, we need to peek at the first example
+        if isinstance(dataset, IterableDataset):
+            first_example = next(iter(dataset))
+        else:
+            first_example = next(iter(dataset["train"]))
+        return list(first_example.keys())
+    else:
+        raise ValueError(
+            "Unsupported dataset type. Please provide a Dataset, IterableDataset, or their Dict variants."
+        )
+
+
+def combine_datasets(
+    datasets: Dict[str, List[Union[Dataset, IterableDataset]]], streaming: bool = False
+) -> Union[DatasetDict, IterableDatasetDict]:
+    """
+    Combines multiple datasets into a single DatasetDict or IterableDatasetDict.
+
+    Parameters
+    ----------
+    datasets : Dict[str, List[Union[Dataset, IterableDataset]]]
+        A dictionary where keys are split names and values are lists of datasets to combine.
+    streaming : bool, optional
+
+    Returns
+    -------
+    Union[DatasetDict, IterableDatasetDict]
+        The combined dataset.
+    """
+    data = {
+        split: concatenate_datasets(datasets_list)
+        for split, datasets_list in datasets.items()
+    }
+
+    if streaming:
+        return IterableDatasetDict(data)
+    else:
+        return DatasetDict(data)
+
+
+def get_sampling_probs(
+    raw_weights: Tuple[Any], strategy: str = "uniform", temperature: float = 1.0
+):
+    """
+    Calculates sampling probabilities for each language based on the specified strategy.
+
+    Parameters
+    ----------
+    raw_weights : Tuple[Any]
+        The raw weights for each language.
+    strategy : str
+        The strategy for calculating sampling probabilities.
+    temperature : float
+        The temperature parameter for temperature-based sampling.
+
+    Returns
+    -------
+    List[float]
+        A list of sampling probabilities for each language.
+    """
+
+    if strategy == "uniform":
+        probs = [1 / len(raw_weights)] * len(raw_weights)
+    elif strategy == "proportional":
+        total = sum(raw_weights)
+        probs = [weight / total for weight in raw_weights]
+    elif strategy == "inverse_proportional":
+        inverse_probs = [1 / weight for weight in raw_weights]
+        total = sum(inverse_probs)
+        probs = [prob / total for prob in inverse_probs]
+    elif strategy == "inverse_proportional_sqrt":
+        inverse_sqrt_probs = [1 / np.sqrt(weight) for weight in raw_weights]
+        total = sum(inverse_sqrt_probs)
+        probs = [prob / total for prob in inverse_sqrt_probs]
+    elif strategy == "temperature":
+        counts = [weight for weight in raw_weights]
+        temp_probs = [count ** (1 / temperature) for count in counts]
+        total = sum(temp_probs)
+        probs = [prob / total for prob in temp_probs]
+    else:
+        raise ValueError(f"Invalid strategy: {strategy}")
+
+    return probs

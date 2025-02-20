@@ -51,6 +51,7 @@ TOKENIZER_PARAM_MAP = {
         "prepend": normalizers.Prepend,
         "replace": normalizers.Replace,
         "strip": normalizers.Strip,
+        "bert": normalizers.BertNormalizer,
     },
     "pre_tokenizer": {
         "byte_level": pre_tokenizers.ByteLevel,

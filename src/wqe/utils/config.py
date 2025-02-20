@@ -44,6 +44,7 @@ class LanguageSampling:
     sampling_strategy: str
     temperature: Optional[float] = 1.0
     interleaving_strategy: Optional[str] = "first_exhausted"
+    raw_weights: Optional[str] = None
 
 
 @dataclass

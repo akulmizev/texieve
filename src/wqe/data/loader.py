@@ -2,11 +2,10 @@ import json
 import importlib.resources as pkg_resources
 import logging
 import os
-import numpy as np
 
 from collections import defaultdict
-from dataclasses import asdict, dataclass
-from typing import Dict, List, Union, Optional
+from dataclasses import dataclass
+from typing import Dict, List, Optional, Union
 
 from datasets import (
     concatenate_datasets,
@@ -26,6 +25,13 @@ from transformers import PreTrainedTokenizerFast
 from . import resources
 from .processing import PreFilter, Deduplicate, Threshold, Partition
 from .source_loaders import load_wiki, load_c4, load_bible, load_nllb
+from .utils import (
+    add_column,
+    combine_datasets,
+    convert_iterable_dataset_to_regular,
+    get_column_names,
+    get_sampling_probs,
+)
 from ..utils.config import Dataset as DatasetConfig
 
 # Setup logging
@@ -101,10 +107,6 @@ class BaseLoader:
     ----------
     data : Union[datasets.DatasetDict, datasets.IterableDatasetDict]
         The dataset loaded from huggingface (or locally) via `datasets.load_dataset`.
-    n_chars : int
-        The total number of characters in the dataset (train partition only).
-    n_docs : int
-        The total number of documents in the dataset (train partition only).
     streaming : bool
         Whether the dataset is loaded in streaming mode.
     """
@@ -116,8 +118,6 @@ class BaseLoader:
         Initializes the BaseLoader instance.
         """
         self.data: Optional[Union[DatasetDict, IterableDatasetDict]] = None
-        self.n_chars: int = 0
-        self.n_docs: int = 0
         self.streaming: bool = False
 
     def __getattr__(self, attr: str):
@@ -205,12 +205,12 @@ class BaseLoader:
         str
             The text of the document.
         """
-        assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
+        assert self.data is not None, "Dataset not loaded. Run `load()` first."
         if self.streaming:
             doc = self.data["train"].take(1)
             return doc["text"][0]
         else:
-            idx = choice(range(len(self.data["train"]["text"]))) if idx is None else idx
+            idx = choice(range(self.data["train"].num_rows)) if idx is None else idx
             return self.data["train"]["text"][idx]
 
     @staticmethod
@@ -233,61 +233,6 @@ class BaseLoader:
                 language = f"{data['language'][:26]}... "
 
             print(f"{iso3:<15}{language:<30}{iso3:<10}{scripts:<30}{sources:<40}")
-
-    @staticmethod
-    def get_column_names(
-        dataset: Union[Dataset, DatasetDict, IterableDataset, IterableDatasetDict],
-    ) -> List[str]:
-        """
-        Get column names from various dataset types.
-
-        Parameters
-        ----------
-        dataset : Union[Dataset, DatasetDict, IterableDataset, IterableDatasetDict]
-            The dataset to get column names from.
-
-        Returns
-        -------
-        List[str]
-            A list of column names.
-
-        Raises
-        ------
-        ValueError
-            If the dataset type is not supported.
-        """
-        if isinstance(dataset, (Dataset, DatasetDict)):
-            return (
-                dataset.column_names
-                if isinstance(dataset, Dataset)
-                else dataset["train"].column_names
-            )
-        elif isinstance(dataset, (IterableDataset, IterableDatasetDict)):
-            # For IterableDatasets, we need to peek at the first example
-            if isinstance(dataset, IterableDataset):
-                first_example = next(iter(dataset))
-            else:
-                first_example = next(iter(dataset["train"]))
-            return list(first_example.keys())
-        else:
-            raise ValueError("Unsupported dataset type")
-
-    def update_counts(self):
-        """
-        Updates the character and document counts for the dataset.
-        """
-        if self.streaming:
-            # Cumbersome way of counting chars and docs in streaming dataset
-            start_state = self.data["train"].state_dict()
-            self.n_chars = 0
-            self.n_docs = 0
-            for doc in self.data["train"]:
-                self.n_chars += len(doc["text"])
-                self.n_docs += 1
-            self.data["train"].load_state_dict(start_state)
-        else:
-            self.n_chars = len("".join(self.data["train"]["text"]))
-            self.n_docs = len(self.data["train"])
 
     def generate_splits(
         self, test_size: float = 0.1, shuffle: bool = True, seed: int = 42
@@ -317,7 +262,6 @@ class BaseLoader:
             self.data = self.data["train"].train_test_split(
                 test_size=test_size, shuffle=shuffle, seed=seed
             )
-            self.update_counts()
 
     def save(self, path: str):
         """
@@ -338,8 +282,7 @@ class BaseLoader:
             )
             self.to_regular()
 
-        for split in self.data.keys():
-            self.data[split].to_parquet(f"{path}/{split}.parquet")
+        self.data.save_to_disk(f"{path}")
 
     def push_to_hub(self, repo_id: str, **kwargs):
         """
@@ -351,6 +294,13 @@ class BaseLoader:
             The repository ID on the Hugging Face Hub.
         """
         assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
+
+        if self.streaming:
+            logger.warning(
+                "Saving is not supported for streaming datasets. Converting to Dataset..."
+            )
+            self.to_regular()
+
         logger.info(f"Pushing dataset to: {repo_id}.")
         self.data.push_to_hub(repo_id, **kwargs)
 
@@ -428,8 +378,6 @@ class BaseLoader:
             self.data["train"], tokenizer=tokenizer, **kwargs
         )
 
-        self.update_counts()
-
         return self
 
     def apply_threshold(
@@ -489,8 +437,6 @@ class BaseLoader:
         self.data["train"] = threshold(
             self.data["train"], tokenizer=tokenizer, **kwargs
         )
-
-        self.update_counts()
 
         return self
 
@@ -554,7 +500,7 @@ class BaseLoader:
             return self
 
         if merge_test and "test" in self.data.keys():
-            logger.info("Concatenating train and test for thresholding...")
+            logger.info("Concatenating train and test for partition...")
             self.data = DatasetDict(
                 {"train": concatenate_datasets([self.data["train"], self.data["test"]])}
             )
@@ -578,8 +524,6 @@ class BaseLoader:
             self.data["train"], tokenizer=tokenizer, **kwargs
         )
 
-        self.update_counts()
-
         return self
 
     def to_iterable(self) -> "BaseLoader":
@@ -593,7 +537,6 @@ class BaseLoader:
         """
         if self.data is None:
             logger.warning("No data loaded. Nothing to convert.")
-            return self
 
         if isinstance(self.data, DatasetDict):
             self.data = IterableDatasetDict(
@@ -606,28 +549,9 @@ class BaseLoader:
         elif isinstance(self.data, IterableDatasetDict):
             logger.info("Data is already in IterableDatasetDict format.")
         else:
-            logger.warning("Data is in an unsupported format.")
+            logger.warning("Data is in an unsupported format. Should be DatasetDict.")
 
         return self
-
-    @staticmethod
-    def _convert_to_regular(dataset: IterableDataset) -> Dataset:
-        """
-        Converts an IterableDataset to a Dataset.
-
-        Parameters
-        ----------
-        dataset : IterableDataset
-            The IterableDataset to convert.
-
-        Returns
-        -------
-        Dataset
-            The converted Dataset.
-        """
-        return Dataset.from_generator(
-            lambda: (yield from dataset), features=dataset.features
-        )
 
     def to_regular(self) -> "BaseLoader":
         """
@@ -644,16 +568,19 @@ class BaseLoader:
             return self
 
         if isinstance(self.data, IterableDatasetDict):
-            data_dict = {}
-            for split, iterable_ds in self.data.items():
-                data_dict[split] = self._convert_to_regular(iterable_ds)
-            self.data = DatasetDict(data_dict)
-            self.streaming = False  # Set streaming to False after conversion
-            self.update_counts()
+            self.data = DatasetDict(
+                {
+                    split: convert_iterable_dataset_to_regular(dataset)
+                    for split, dataset in self.data.items()
+                }
+            )
+            self.streaming = False
         elif isinstance(self.data, DatasetDict):
             logger.info("Data is already in DatasetDict format.")
         else:
-            logger.warning("Data is in an unsupported format.")
+            logger.warning(
+                "Data is in an unsupported format. Should be IterableDatasetDict."
+            )
 
         return self
 
@@ -677,10 +604,8 @@ class MonolingualLoader(BaseLoader):
         The LangID instance for the specified language.
     data : datasets.DatasetDict
         The dataset loaded from huggingface (or locally) via datasets.load_dataset`.
-    n_chars : int
-        The total number of characters in the dataset (train partition only).
-    n_docs : int
-        The total number of documents in the dataset (train partition only).
+    sources : List[str]
+        The sources from which the data was loaded.
     streaming : bool
         Whether the dataset is loaded in streaming mode.
     """
@@ -701,8 +626,6 @@ class MonolingualLoader(BaseLoader):
         self.lang = LangID(lang_id)
         self.data = None
         self.sources = []
-        self.n_chars = 0
-        self.n_docs = 0
         self.streaming = False
 
     def __str__(self):
@@ -748,13 +671,14 @@ class MonolingualLoader(BaseLoader):
 
         if load_path:
             # Try locally first
-            if os.path.exists(load_path):
+            local_path = os.path.join(load_path, self.lang.id)
+            if os.path.exists(local_path):
                 try:
-                    self.data = load_dataset(load_path, streaming=self.streaming)
-                    self.sources = [load_path]
+                    self.data = load_dataset(local_path, streaming=self.streaming)
+                    self.sources = [local_path]
                 except DatasetNotFoundError:
                     logger.error(
-                        f"Dataset not found at local path: {load_path}. "
+                        f"Dataset not found at local path: {local_path}. "
                         f"Please specify a valid address or path."
                     )
             # Back off to hub
@@ -784,15 +708,15 @@ class MonolingualLoader(BaseLoader):
                     self.sources.remove(source)
                     continue
                 dataset = self._load_source(source, streaming=self.streaming, **kwargs)
-                for split_name, split_data in dataset.items():
-                    data_dict[split_name].append(split_data)
+                for split, split_dataset in dataset.items():
+                    data_dict[split].append(split_dataset)
 
             if not data_dict:
                 raise ValueError(
                     "No valid datasets were loaded from the specified sources."
                 )
 
-            self.data = self._combine_datasets(data_dict)
+            self.data = combine_datasets(data_dict, streaming=self.streaming)
 
         if split:
             if split not in self.data.keys():
@@ -806,21 +730,9 @@ class MonolingualLoader(BaseLoader):
                     if not self.streaming
                     else IterableDatasetDict(split_data)
                 )
-        else:
-            split = "train"
-
-        self.update_counts()
 
         logger.info(
-            "Loaded %d articles with %d characters (%s). "
-            "Language: %s (%s). "
-            "Sources: %s.",
-            self.n_docs,
-            self.n_chars,
-            split,
-            self.lang.language,
-            self.lang.id,
-            ", ".join(self.sources),
+            f"Loaded dataset for language: {self.lang.language}. Sources: {', '.join(self.sources)}."
         )
 
         return self
@@ -855,14 +767,11 @@ class MonolingualLoader(BaseLoader):
         instance = cls(lang_id)
         instance.streaming = isinstance(dataset, (IterableDataset, IterableDatasetDict))
 
-        if not isinstance(
+        assert isinstance(
             dataset, (Dataset, DatasetDict, IterableDataset, IterableDatasetDict)
-        ):
-            raise ValueError(
-                "Invalid dataset type. Please provide a Dataset, DatasetDict, IterableDataset, or IterableDatasetDict."
-            )
+        ), "Invalid dataset type. Please provide a Dataset, IterableDataset, or their Dict variants."
 
-        column_names = instance.get_column_names(dataset)
+        column_names = get_column_names(dataset)
 
         if text_column not in column_names:
             raise ValueError(
@@ -872,63 +781,20 @@ class MonolingualLoader(BaseLoader):
         if text_column != "text":
             dataset = dataset.rename_column(text_column, "text")
 
-        def add_source_column(example):
-            example["source"] = source
-            return example
-
         if isinstance(dataset, (Dataset, IterableDataset)):
-            dataset = dataset.map(add_source_column)
+            dataset = add_column(dataset, "source", source)
             instance.data = (
                 IterableDatasetDict if instance.streaming else DatasetDict
             )({"train": dataset})
             logger.info("Standalone Dataset object detected. Assuming 'train' split.")
         else:
-            instance.data = dataset.map(add_source_column)
-
-        instance.update_counts()
+            for split in dataset.keys():
+                dataset[split] = add_column(dataset[split], "source", source)
+            instance.data = dataset
 
         logger.info(
-            f"Loaded dataset with {instance.n_docs} articles and {instance.n_chars} characters (train). "
-            f"Streaming: {instance.streaming}"
+            f"Loaded dataset for language: {instance.lang.language}. Source: {source}."
         )
-
-        return instance
-
-    @classmethod
-    def from_config(cls, config: DatasetConfig) -> "MonolingualLoader":
-        """
-        Initializes a MonolingualLoader instance from a DatasetConfig.
-
-        Parameters
-        ----------
-        config : DatasetConfig
-            The DatasetConfig instance to use for loading and preprocessing the dataset.
-
-        Returns
-        -------
-        MonolingualLoader
-            The initialized MonolingualLoader instance.
-        """
-        assert config.languages is not None, "Please specify languages in the config."
-        assert (
-            len(config.languages) == 1
-        ), "Pass a single language to MonolingualLoader."
-
-        instance = cls(config.languages[0])
-        instance.load(
-            load_path=config.load_path,
-            sources=config.sources,
-            streaming=config.streaming,
-        )
-
-        if config.pre_filter:
-            instance.pre_filter(**asdict(config.pre_filter))
-        if config.deduplicate:
-            instance.deduplicate(**asdict(config.deduplicate))
-        if config.threshold:
-            instance.apply_threshold(**asdict(config.threshold))
-        if config.partition:
-            instance.apply_partition(**asdict(config.partition))
 
         return instance
 
@@ -1034,34 +900,7 @@ class MonolingualLoader(BaseLoader):
             **kwargs,
         )
 
-        self.update_counts()
-
         return self
-
-    def _combine_datasets(
-        self, datasets: Dict[str, List[Union[Dataset, IterableDataset]]]
-    ) -> Union[DatasetDict, IterableDatasetDict]:
-        """
-        Combines multiple datasets into a single DatasetDict or IterableDatasetDict.
-
-        Parameters
-        ----------
-        datasets : Dict[str, List[Union[Dataset, IterableDataset]]]
-            A dictionary where keys are split names and values are lists of datasets to combine.
-
-        Returns
-        -------
-        Union[DatasetDict, IterableDatasetDict]
-            The combined dataset.
-        """
-        data = {
-            split: concatenate_datasets(datasets)
-            for split, datasets in datasets.items()
-        }
-        if self.streaming:
-            return IterableDatasetDict(data)
-        else:
-            return DatasetDict(data)
 
     def _load_source(
         self, source: str, streaming: bool = False, dump_date: str = "20231101"
@@ -1102,14 +941,9 @@ class MonolingualLoader(BaseLoader):
             raise ValueError(f"Invalid source: {source}. Please choose a valid source.")
 
         dataset = source_loaders[source]()
-
-        if streaming:
-            dataset = dataset.map(lambda example: {**example, "source": source})
-        else:
-            for split_name in dataset.keys():
-                dataset[split_name] = dataset[split_name].add_column(
-                    "source", [source] * len(dataset[split_name])
-                )
+        # TODO: clean this up and make the column adding more uniform
+        for split, split_dataset in dataset.items():
+            dataset[split] = add_column(split_dataset, "source", source)
 
         return dataset
 
@@ -1123,8 +957,6 @@ class MultilingualLoader(BaseLoader):
     ----------
     loaders : Dict[str, MonolingualLoader]
         A dictionary of MonolingualLoader instances, keyed by language code.
-    stats : Dict[str, Dict[str, int]]
-        A dictionary of statistics for each language, including n_chars and n_docs.
     data : DatasetDict
         A DatasetDict containing the combined datasets from all languages.
     streaming : bool
@@ -1142,14 +974,12 @@ class MultilingualLoader(BaseLoader):
         """
         super().__init__()
         self.loaders = {}
-        self.stats = {}
         self.data = None
         self.sources = []
         self.streaming = False
 
         for lang_id in lang_ids:
             self.loaders[lang_id] = MonolingualLoader(lang_id)
-            self.stats[lang_id] = {"n_chars": 0, "n_docs": 0}
 
     def __str__(self):
         return f"MultilingualLoader for {len(self.loaders)} languages."
@@ -1196,16 +1026,14 @@ class MultilingualLoader(BaseLoader):
                 streaming=self.streaming,
                 **kwargs,
             )
-            self.stats[lang_id]["n_chars"] = loader.n_chars
-            self.stats[lang_id]["n_docs"] = loader.n_docs
 
-            for split_name, dataset in loader.data.items():
-                column_names = self.get_column_names(dataset)
+            for split, split_dataset in loader.data.items():
+                column_names = get_column_names(split_dataset)
                 if "language" not in column_names:
-                    dataset = self._add_language_column(dataset, lang_id)
-                combined_datasets[split_name].append(dataset)
+                    loader.data[split] = add_column(split_dataset, "language", lang_id)
+                combined_datasets[split].append(loader.data[split])
 
-        self.data = self._combine_datasets(combined_datasets)
+        self.data = combine_datasets(combined_datasets, streaming=self.streaming)
 
         return self
 
@@ -1248,10 +1076,14 @@ class MultilingualLoader(BaseLoader):
 
         # Handle different dataset types
         if isinstance(dataset, (Dataset, IterableDataset)):
-            if streaming:
-                dataset = IterableDatasetDict({"train": dataset})
-            else:
-                dataset = DatasetDict({"train": dataset})
+            dataset = (
+                IterableDatasetDict({"train": dataset})
+                if streaming
+                else DatasetDict({"train": dataset})
+            )
+            logger.warning(
+                "Standalone Dataset object detected. Assuming 'train' split."
+            )
 
         # Check for required columns
         for split, split_dataset in dataset.items():
@@ -1262,17 +1094,12 @@ class MultilingualLoader(BaseLoader):
                 raise ValueError(
                     f"Required columns '{text_column}' and '{lang_column}' not found in dataset."
                 )
+            dataset[split] = add_column(split_dataset, "source", source)
 
         if text_column != "text":
             dataset = dataset.rename_column(text_column, "text")
         if lang_column != "language":
             dataset = dataset.rename_column(lang_column, "language")
-
-        def add_source_column(example):
-            example["source"] = source
-            return example
-
-        dataset = dataset.map(add_source_column)
 
         unique_langs = set()
         for split in dataset.keys():
@@ -1289,54 +1116,12 @@ class MultilingualLoader(BaseLoader):
                 lang_dataset, lang_id=lang_id, text_column="text", source=source
             )
             instance.loaders[lang_id] = mono_loader
-            instance.stats[lang_id] = {
-                "n_chars": mono_loader.n_chars,
-                "n_docs": mono_loader.n_docs,
-            }
 
         instance.data = dataset
 
         logger.info(
-            f"Loaded multilingual dataset with {sum(stats['n_docs'] for stats in instance.stats.values())} "
-            f"total documents across {len(instance.loaders)} languages. Streaming: {instance.streaming}"
+            f"Loaded multilingual dataset for {', '.join(list(unique_langs))}. Streaming: {instance.streaming}"
         )
-
-        return instance
-
-    @classmethod
-    def from_config(cls, config: DatasetConfig) -> "MultilingualLoader":
-        """
-        Initializes a MultilingualLoader instance from a configuration dictionary.
-
-        Parameters
-        ----------
-        config : DatasetConfig
-            The DatasetConfig instance to use for loading and preprocessing the dataset.
-
-        Returns
-        -------
-        MultilingualLoader
-            The initialized MultilingualLoader instance.
-        """
-        assert config.languages is not None, "Please specify languages in the config."
-
-        instance = cls(config.languages)
-        instance.load(
-            load_path=config.load_path,
-            sources=config.sources,
-            streaming=config.streaming,
-        )
-
-        if config.pre_filter:
-            instance.pre_filter(**asdict(config.pre_filter))
-        if config.deduplicate:
-            instance.deduplicate(**asdict(config.deduplicate))
-        if config.threshold:
-            instance.apply_threshold(**asdict(config.threshold))
-        if config.partition:
-            instance.apply_partition(**asdict(config.partition))
-        if config.language_sampling:
-            instance.apply_language_sampling(**asdict(config.language_sampling))
 
         return instance
 
@@ -1361,21 +1146,21 @@ class MultilingualLoader(BaseLoader):
         for loader in loaders:
             lang_id = loader.lang.id
             instance.loaders[lang_id] = loader
-            instance.stats[lang_id] = {
-                "n_chars": loader.n_chars,
-                "n_docs": loader.n_docs,
-            }
 
             if loader.data is not None:
-                for split_name, dataset in loader.data.items():
-                    if "language" not in dataset.column_names:
-                        dataset = instance._add_language_column(dataset, lang_id)
-                    combined_datasets[split_name].append(dataset)
+                for split, split_dataset in loader.data.items():
+                    if "language" not in split_dataset.column_names:
+                        loader.data[split] = add_column(
+                            split_dataset, "language", lang_id
+                        )
+                    combined_datasets[split].append(loader.data[split])
             else:
                 logger.warning(f"Dataset(s) for {lang_id} not loaded. Skipping.")
 
         if combined_datasets:
-            instance.data = instance._combine_datasets(combined_datasets)
+            instance.data = combine_datasets(
+                combined_datasets, streaming=instance.streaming
+            )
 
         return instance
 
@@ -1427,16 +1212,14 @@ class MultilingualLoader(BaseLoader):
                 warn_percent,
                 **kwargs,
             )
-            self.stats[lang]["n_chars"] = loader.n_chars
-            self.stats[lang]["n_docs"] = loader.n_docs
 
-            for split_name, dataset in loader.data.items():
-                column_names = self.get_column_names(dataset)
+            for split, split_dataset in loader.data.items():
+                column_names = get_column_names(split_dataset)
                 if "language" not in column_names:
-                    dataset = self._add_language_column(dataset, lang)
-                combined_datasets[split_name].append(dataset)
+                    loader.data[split] = add_column(split_dataset, "language", lang)
+                combined_datasets[split].append(loader.data[split])
 
-        self.data = self._combine_datasets(combined_datasets)
+        self.data = combine_datasets(combined_datasets, streaming=self.streaming)
 
         return self
 
@@ -1445,6 +1228,7 @@ class MultilingualLoader(BaseLoader):
         sampling_strategy: str = "uniform",
         temperature: float = 1.0,
         interleaving_strategy: str = "all_exhausted",
+        raw_weights: Dict[str, float] = None,
     ) -> "MultilingualLoader":
         """
         Applies language sampling to the dataset.
@@ -1468,6 +1252,11 @@ class MultilingualLoader(BaseLoader):
             - "all_exhausted": Continue until all datasets are exhausted.
             - "first_exhausted": Stop when the first dataset is exhausted.
             Default is "all_exhausted".
+        raw_weights : Dict[str, float], optional
+            The raw weights for each language, to be used for calculating normalized sampling weights.
+            This can be any value that represents dataset size, such as number of documents, tokens, or characters.
+            Must cover all languages in the loader. If not provided, raw weights will be calculated
+            by iterating over the dataset, which can be slow for streaming datasets.
 
         Returns
         -------
@@ -1479,7 +1268,35 @@ class MultilingualLoader(BaseLoader):
                 "Dataset not loaded. Run `load()` or `from_loaders()` first."
             )
 
-        sampling_probs = self._get_sampling_probs(sampling_strategy, temperature)
+        if raw_weights is not None:
+            if not all(
+                lang_id in raw_weights.keys() for lang_id in self.loaders.keys()
+            ):
+                raise ValueError("Raw weights must cover all languages in the loader.")
+            weights_to_normalize = tuple(
+                raw_weights[lang_id] for lang_id in self.loaders.keys()
+            )
+        else:
+            if self.streaming:
+                logger.warning(
+                    "Calculating raw weights for streaming datasets. This may take a while."
+                )
+                weights_to_normalize = tuple(
+                    [
+                        sum(1 for _ in loader.data["train"])
+                        for loader in self.loaders.values()
+                    ]
+                )
+            else:
+                weights_to_normalize = tuple(
+                    loader.data["train"].num_rows
+                    for lang_id, loader in self.loaders.items()
+                )
+
+        logger.info(f"Applying language sampling with strategy: {sampling_strategy}.")
+        sampling_probs = get_sampling_probs(
+            weights_to_normalize, sampling_strategy, temperature
+        )
 
         sampled_datasets = defaultdict(list)
         for split, dataset in self.data.items():
@@ -1543,16 +1360,12 @@ class MultilingualLoader(BaseLoader):
             )
 
         self.loaders[loader.lang.id] = loader
-        self.stats[loader.lang.id] = {
-            "n_chars": loader.n_chars,
-            "n_docs": loader.n_docs,
-        }
 
         # Update the combined dataset
         if self.data is not None:
             for split, dataset in loader.data.items():
-                if "language" not in self.get_column_names(dataset):
-                    dataset = self._add_language_column(dataset, loader.lang.id)
+                if "language" not in get_column_names(dataset):
+                    dataset = add_column(dataset, "language", loader.lang.id)
                     self.loaders[loader.lang.id].data[split] = dataset
                 if split not in self.data:
                     self.data[split] = dataset
@@ -1576,7 +1389,7 @@ class MultilingualLoader(BaseLoader):
             If the specified language is not in the MultilingualLoader.
         """
 
-        #TODO: There needs to be a more elegant solution to this, as certain operations that alter the data attribute
+        # TODO: There needs to be a more elegant solution to this, as certain operations that alter the data attribute
         # (e.g. deduplicate, etc.) will not update the loaders and stats attributes. This will lead to inconsistencies
         # between the data attribute and the loaders and stats attributes.
 
@@ -1584,17 +1397,82 @@ class MultilingualLoader(BaseLoader):
             raise KeyError(f"Language '{lang_id}' not found in MultilingualLoader")
 
         self.loaders.pop(lang_id)
-        self.stats.pop(lang_id)
 
-        if len(self.loaders) == 0 and len(self.stats) == 0:
+        if len(self.loaders) == 0:
             self.data = None
         else:
             combined_datasets = defaultdict(list)
             for loader in self.loaders.values():
-                for split_name, dataset in loader.data.items():
-                    combined_datasets[split_name].append(dataset)
+                for split, split_dataset in loader.data.items():
+                    combined_datasets[split].append(split_dataset)
 
-            self.data = self._combine_datasets(combined_datasets)
+            self.data = combine_datasets(combined_datasets, streaming=self.streaming)
+
+    def to_iterable(self) -> "MultilingualLoader":
+        """
+        Converts the internal data attribute to an IterableDatasetDict.
+
+        Returns
+        -------
+        MultilingualLoader
+            Returns self with updated data attribute.
+        """
+        if self.data is None:
+            logger.warning("No data loaded. Nothing to convert.")
+
+        if isinstance(self.data, DatasetDict):
+            combined_datasets = defaultdict(list)
+            for lang_id, loader in self.loaders.items():
+                loader.to_iterable()
+                for split, split_dataset in loader.data.items():
+                    combined_datasets[split].append(split_dataset)
+                self.loaders[lang_id] = loader
+            combined_datasets = combine_datasets(combined_datasets, streaming=True)
+            self.data = IterableDatasetDict(
+                {split: combined_datasets[split] for split in combined_datasets.keys()}
+            )
+            self.streaming = True
+        elif isinstance(self.data, IterableDatasetDict):
+            logger.info("Data is already in IterableDatasetDict format.")
+        else:
+            logger.warning("Data is in an unsupported format. Should be DatasetDict.")
+
+        return self
+
+    def to_regular(self) -> "MultilingualLoader":
+        """
+        Converts the internal data attribute from an IterableDatasetDict
+        to a DatasetDict.
+
+        Returns
+        -------
+        MultilingualLoader
+            Returns self with updated data attribute.
+        """
+        if self.data is None:
+            logger.warning("No data loaded. Load data first via `.load()`.")
+            return self
+
+        if isinstance(self.data, IterableDatasetDict):
+            combined_datasets = defaultdict(list)
+            for lang_id, loader in self.loaders.items():
+                loader.to_regular()
+                for split, split_dataset in loader.data.items():
+                    combined_datasets[split].append(split_dataset)
+                self.loaders[lang_id] = loader
+            combined_datasets = combine_datasets(combined_datasets, streaming=False)
+            self.data = DatasetDict(
+                {split: combined_datasets[split] for split in combined_datasets.keys()}
+            )
+            self.streaming = False
+        elif isinstance(self.data, DatasetDict):
+            logger.info("Data is already in DatasetDict format.")
+        else:
+            logger.warning(
+                "Data is in an unsupported format. Should be IterableDatasetDict."
+            )
+
+        return self
 
     def save(self, path: str, save_loaders_separately: bool = False):
         """
@@ -1613,7 +1491,9 @@ class MultilingualLoader(BaseLoader):
         else:
             super().save(path)
 
-    def push_to_hub(self, repo_id: str, save_loaders_together: bool = False, **kwargs):
+    def push_to_hub(
+        self, repo_id: str, save_loaders_separately: bool = False, **kwargs
+    ):
         """
         Pushes the dataset to the specified repository on the Hugging Face Hub.
 
@@ -1621,104 +1501,11 @@ class MultilingualLoader(BaseLoader):
         ----------
         repo_id : str
             The repository ID on the Hugging Face Hub.
-        save_loaders_together : bool
+        save_loaders_separately : bool
             Whether to all data as a single, concatenated dataset.
         """
-        if save_loaders_together:
-            super().push_to_hub(repo_id, **kwargs)
-        else:
+        if save_loaders_separately:
             for lang_id, loader in self.loaders.items():
                 loader.push_to_hub(repo_id, config_name=lang_id, **kwargs)
-
-    def _get_sampling_probs(self, strategy: str = "uniform", temperature: float = 1.0):
-        """
-        Calculates sampling probabilities for each language based on the specified strategy.
-
-        Parameters
-        ----------
-        strategy : str
-            The strategy for calculating sampling probabilities.
-        temperature : float
-            The temperature parameter for temperature-based sampling.
-
-        Returns
-        -------
-        List[float]
-            A list of sampling probabilities for each language.
-        """
-        if strategy == "uniform":
-            probs = [1 / len(self.loaders)] * len(self.loaders)
-        elif strategy == "proportional":
-            total_docs = sum(stats["n_docs"] for stats in self.stats.values())
-            probs = [stats["n_docs"] / total_docs for stats in self.stats.values()]
-        elif strategy == "inverse_proportional":
-            inverse_probs = [1 / stats["n_docs"] for stats in self.stats.values()]
-            total = sum(inverse_probs)
-            probs = [prob / total for prob in inverse_probs]
-        elif strategy == "inverse_proportional_sqrt":
-            inverse_sqrt_probs = [
-                1 / np.sqrt(stats["n_docs"]) for stats in self.stats.values()
-            ]
-            total = sum(inverse_sqrt_probs)
-            probs = [prob / total for prob in inverse_sqrt_probs]
-        elif strategy == "temperature":
-            counts = [stats["n_docs"] for stats in self.stats.values()]
-            temp_probs = [count ** (1 / temperature) for count in counts]
-            total = sum(temp_probs)
-            probs = [prob / total for prob in temp_probs]
         else:
-            raise ValueError(f"Invalid strategy: {strategy}")
-
-        return probs
-
-    def _combine_datasets(
-        self, datasets: Dict[str, List[Union[Dataset, IterableDataset]]]
-    ):
-        """
-        Combines multiple datasets into a single DatasetDict or IterableDatasetDict.
-
-        Parameters
-        ----------
-        datasets : Dict[str, List[Union[Dataset, IterableDataset]]]
-            A dictionary where keys are split names and values are lists of datasets to combine.
-
-        Returns
-        -------
-        Union[DatasetDict, IterableDatasetDict]
-            The combined dataset.
-        """
-        data = {
-            split: concatenate_datasets(datasets_list)
-            for split, datasets_list in datasets.items()
-        }
-
-        if self.streaming:
-            return IterableDatasetDict(data)
-        else:
-            return DatasetDict(data)
-
-    @staticmethod
-    def _add_language_column(dataset: Union[Dataset, IterableDataset], lang_id: str):
-        """
-        Adds a language column to the dataset.
-
-        Parameters
-        ----------
-        dataset : Union[Dataset, IterableDataset]
-            The dataset to add the language column to.
-        lang_id : str
-            The language ID to add.
-
-        Returns
-        -------
-        Union[Dataset, IterableDataset]
-            The dataset with the added language column.
-        """
-        if isinstance(dataset, Dataset):
-            return dataset.add_column("language", [lang_id] * len(dataset))
-        elif isinstance(dataset, IterableDataset):
-            return dataset.map(lambda example: {**example, "language": lang_id})
-        else:
-            raise ValueError(
-                "Dataset backend must be a huggingface Dataset or IterableDataset"
-            )
+            super().push_to_hub(repo_id, **kwargs)

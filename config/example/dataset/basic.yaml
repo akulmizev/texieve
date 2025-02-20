@@ -1,10 +1,12 @@
 languages:
   - "your-language"
 
-# load_path: "your-load-path"
+load_path: "your-path"
 
-sources: # wiki, bible, mc4, nllb supported
-  - "wiki"
+# sources:
+#   - "your-source"
+
+streaming: False
 
 pre_filter:
   script_regex: true

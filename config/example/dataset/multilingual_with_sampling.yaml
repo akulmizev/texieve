@@ -2,17 +2,17 @@ languages:
   - "your-language-1"
   - "your-language-2"
 
-# load_path: "your-load-path"
+load_path: "your-load-path"
 
-sources: # wiki, bible, mc4, nllb supported
-  - "your-source-1"
-  - "your-source-2"
+#sources: # wiki, bible, mc4, nllb supported
+#  - "your-source
 
 language_sampling:
   sampling_strategy: "temperature"
   temperature: 3.0
+  raw_weights: "/path/to/weights.json"
 
-streaming: false
+streaming: true
 
-export: true
-push_to_hub: true
+export: false
+push_to_hub: false
