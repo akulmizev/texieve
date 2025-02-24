@@ -27,6 +27,10 @@ class ModelInitMixin:
         Task type ('mlm', 'clm', 'pos', 'ner', or 'classification').
     num_train_epochs : int
         Number of training epochs.
+    num_train_steps : int, optional
+        Number of training steps (default is None - falls back to epoch).
+    num_warmup_steps : int, optional
+        Number of warmup steps for the optimizer (default is 0).
     max_length : int, optional
         Maximum length of input sequences (default is 512).
     batch_size : int, optional
@@ -67,7 +71,10 @@ class ModelInitMixin:
         self,
         model_type: str,
         task: str,
-        num_train_epochs: int,
+        num_train_epochs: Optional[int] = 10,
+        num_train_steps: Optional[int] = None,
+        num_eval_steps: Optional[int] = None,
+        num_warmup_steps: Optional[int] = 0,
         max_length: Optional[int] = 128,
         batch_size: Optional[int] = 8,
         lr: Optional[float] = 1e-3,
@@ -75,7 +82,6 @@ class ModelInitMixin:
         mask_prob: Optional[float] = 0.15,
         grad_accumulation_steps: Optional[int] = 1,
         mixed_precision: Optional[str] = "no",
-        num_eval_steps: Optional[int] = None,
         checkpoint_path: Optional[Union[str, None]] = None,
         seed: Optional[int] = None,
         quantize_4bit: Optional[bool] = False,
@@ -84,6 +90,9 @@ class ModelInitMixin:
         self.model_type = model_type
         self.task = task
         self.num_train_epochs = num_train_epochs
+        self.num_train_steps = num_train_steps
+        self.num_eval_steps = num_eval_steps
+        self.num_warmup_steps = num_warmup_steps
         self.max_length = max_length
         self.batch_size = batch_size
         self.lr = lr
@@ -91,7 +100,6 @@ class ModelInitMixin:
         self.mask_prob = mask_prob
         self.grad_accumulation_steps = grad_accumulation_steps
         self.mixed_precision = mixed_precision
-        self.num_eval_steps = num_eval_steps
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         # self.torch_dtype = torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float32
         self.checkpoint_path = checkpoint_path
@@ -100,6 +108,9 @@ class ModelInitMixin:
         self.wandb = False
 
         self._check_params()
+
+        if self.seed:
+            torch.manual_seed(self.seed)
 
         self.accelerator = Accelerator(
             project_dir=self.checkpoint_path if self.checkpoint_path else None,
@@ -170,3 +181,13 @@ class ModelInitMixin:
             f"Provided invalid padding type: {self.padding_strategy}. "
             f"Must be one of 'max_length', 'longest'."
         )
+
+        assert self.mixed_precision in ["no", "fp16", "fp32", "bf16", "fp8"], (
+            f"Provided invalid mixed precision type: {self.mixed_precision}. "
+            f"Must be one of 'no', 'fp16', 'fp32', 'bf16', 'fp8'."
+        )
+
+        if self.num_train_steps and self.num_warmup_steps:
+            assert (
+                self.num_train_steps > self.num_warmup_steps
+            ), "Number of training steps must be greater than number of warmup steps."

@@ -119,7 +119,8 @@ class PeftConfig:
 class TrainingParameters:
     model_type: str = "bert-base-uncased"
     task: str = "classification"
-    num_train_epochs: int = 10
+    num_train_epochs: int = 1
+    num_warmup_steps: int = (0,)
     max_length: int = 512
     batch_size: int = 8
     lr: float = 1e-3
@@ -127,6 +128,7 @@ class TrainingParameters:
     grad_accumulation_steps: int = 1
     mixed_precision: str = "no"
     mask_prob: Optional[float] = None
+    num_train_steps: Optional[int] = None
     num_eval_steps: Optional[int] = None
     seed: Optional[int] = None
     quantize_4bit: Optional[bool] = False

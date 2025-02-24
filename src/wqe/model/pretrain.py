@@ -182,7 +182,7 @@ class MLM(ModelFromConfig):
             batched_dataset,
             collate_fn=self.collator,
             batch_size=self.batch_size,
-            shuffle=True,
+            # shuffle=True,
             pin_memory=True,
         )
 

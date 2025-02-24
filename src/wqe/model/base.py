@@ -126,13 +126,6 @@ class ModelFromConfig(ModelInitMixin):
             split: self._tokenize_and_collate(dataset[split]) for split in splits
         }
 
-        self.num_train_steps = self.num_train_epochs * len(loaders["train"])
-        self.num_eval_steps = (
-            len(loaders["train"])
-            if self.num_eval_steps is None
-            else self.num_eval_steps
-        )
-
         self.optimizer = AdamW(
             self._model.parameters(), lr=float(self.lr), weight_decay=0.05
         )
@@ -140,13 +133,16 @@ class ModelFromConfig(ModelInitMixin):
         self.scheduler = get_scheduler(
             "linear",
             optimizer=self.optimizer,
-            num_warmup_steps=500,
-            num_training_steps=self.num_train_steps // self.grad_accumulation_steps,
+            num_warmup_steps=self.num_warmup_steps,
+            num_training_steps=self.num_train_steps // self.grad_accumulation_steps
+            if self.num_train_steps
+            else None,
         )
 
-        self._model, self.optimizer = self.accelerator.prepare(
-            self._model, self.optimizer
+        self._model, self.optimizer, self.scheduler = self.accelerator.prepare(
+            self._model, self.optimizer, self.scheduler
         )
+
         for k, loader in loaders.items():
             loaders[k] = self.accelerator.prepare(loader)
 
@@ -212,39 +208,60 @@ class ModelFromConfig(ModelInitMixin):
         loaders = self._prepare_for_training(dataset)
         running_loss = torch.inf
         running_f1 = 0
-        progress_bar = tqdm(range(self.num_train_steps))
+        # Initialize progress bar based on total steps if specified, otherwise use a standard tqdm bar
+        total_steps = self.num_train_steps if self.num_train_steps else None
+        progress_bar = tqdm(total=total_steps, position=0, leave=True)
 
-        logger.info(
-            f"Training model for {self.num_train_epochs} epoch(s) ({self.num_train_steps} steps)."
-        )
+        if self.num_train_steps:
+            logger.info(
+                f"Training model for {self.num_train_epochs} epoch(s) ({self.num_train_steps} steps)."
+            )
         logger.info(
             f"{self.batch_size} examples per batch, {self.grad_accumulation_steps} grad. accumulation steps."
         )
 
-        for epoch in range(self.num_train_epochs):
+        # Keep track of global steps across epochs
+        global_step = 0
+        epoch = 0
+
+        # Continue training until we reach max steps or max epochs
+        while (
+            not self.num_train_steps or global_step < self.num_train_steps
+        ) and epoch < self.num_train_epochs:
             self._model.train()
+            logger.info(f"Starting epoch {epoch + 1}/{self.num_train_epochs}")
+
+            # Process batches within the current epoch
             with self.accelerator.accumulate(self._model):
-                for step, batch in enumerate(loaders["train"], start=1):
+                for batch in loaders["train"]:
+                    # Break if we've reached max steps
+                    if self.num_train_steps and global_step >= self.num_train_steps:
+                        break
+
+                    # Forward pass
                     outputs = self._model(**batch)
                     loss = outputs.loss
 
-                    loss_str = f"Step {step + (epoch * len(loaders['train']))} | Loss: {loss.item():.4f}"
+                    # Logging
+                    loss_str = f"Step {global_step + 1} | Epoch {epoch + 1} | Loss: {loss.item():.4f}"
                     progress_bar.set_description(loss_str)
                     progress_bar.update(1)
                     if self.wandb:
                         wandb.log({"train": {"loss": loss.item()}})
 
+                    # Scale loss for gradient accumulation
                     loss = loss / self.grad_accumulation_steps
 
+                    # Backward pass
                     self.accelerator.backward(loss)
-                    if step % self.grad_accumulation_steps == 0:
+
+                    # Update weights when accumulation is complete
+                    if (global_step + 1) % self.grad_accumulation_steps == 0:
                         self.optimizer.step()
                         self.scheduler.step()
                         self.optimizer.zero_grad()
 
-                    if (
-                        step + (epoch * len(loaders["train"]))
-                    ) % self.num_eval_steps == 0:
+                    if self.num_eval_steps and global_step % self.num_eval_steps == 0:
                         if eval_split not in loaders:
                             logger.warning(
                                 f"No {eval_split} split found. Skipping evaluation."
@@ -262,7 +279,7 @@ class ModelFromConfig(ModelInitMixin):
                                 [f"val. {k}: {v:.4f}" for k, v in scores.items()]
                             )
                             logger.info(
-                                f"Step {step + (epoch * len(loaders['train']))} | {scores_str}"
+                                f"Step {global_step+1} | Epoch {epoch+1} | {scores_str}"
                             )
 
                             if self.checkpoint_path:
@@ -276,6 +293,7 @@ class ModelFromConfig(ModelInitMixin):
                                             safe_serialization=False,
                                         )
                                         running_loss = scores["loss"]
+                                # TODO: needs to be fixed
                                 except KeyError:
                                     if scores["f1"] > running_f1:
                                         logger.info(
@@ -291,6 +309,13 @@ class ModelFromConfig(ModelInitMixin):
                                 wandb.log({"val": scores})
 
                             self._model.train()
+
+                    global_step += 1
+
+                if self.num_train_steps and global_step >= self.num_train_steps:
+                    break
+
+            epoch += 1
 
         progress_bar.close()
         logger.info("Training complete.")
