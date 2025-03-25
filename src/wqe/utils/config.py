@@ -226,12 +226,15 @@ class Pretrain:
     export: bool = False
     push_to_hub: bool = False
     training_parameters: Optional[Dict[str, Union[str, int, float, bool]]] = None
+    language_sampling: Optional[Dict[str, Any]] = None
     checkpoint: Optional[bool] = False
     test_path: Optional[str] = None
 
     def __post_init__(self):
         if self.training_parameters:
             self.training_parameters = TrainingParameters(**self.training_parameters)
+        if self.language_sampling:
+            self.language_sampling = LanguageSampling(**self.language_sampling)
 
 
 @dataclass

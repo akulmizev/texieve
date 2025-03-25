@@ -9,7 +9,7 @@ from transformers import AutoModelForCausalLM, PreTrainedTokenizerFast
 from typing import Any, Dict
 from tqdm import tqdm
 
-from .utils import tokenize, compute_ngrams, get_all_punctuation
+from ..utils.data import tokenize, compute_ngrams, get_all_punctuation
 
 ALL_PUNCTUATION = get_all_punctuation()
 

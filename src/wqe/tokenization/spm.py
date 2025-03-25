@@ -18,7 +18,7 @@ from transformers.convert_slow_tokenizer import import_protobuf
 from datasets import Dataset, IterableDataset
 
 from .base import BaseTokenizerMixin
-from .utils import SpmConverter
+from ..utils.tokenization import SpmConverter
 from ..utils.config import TokenizerConfig
 
 logging.basicConfig(level=logging.INFO)

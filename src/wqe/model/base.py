@@ -6,13 +6,14 @@ from typing import Dict, Optional, Union
 import torch
 import wandb
 
-from datasets import Dataset, DatasetDict
+from datasets import Dataset, DatasetDict, IterableDatasetDict
 from transformers import get_scheduler, PreTrainedTokenizerFast
 from torch.utils.data import DataLoader
 from torch.optim import AdamW
 from tqdm import tqdm
 
 from .mixins import ModelInitMixin
+from .. import MonolingualLoader, MultilingualLoader
 from ..tokenization.base import HfTokenizerFromConfig
 from ..utils.config import TrainingParameters
 
@@ -59,6 +60,7 @@ class ModelFromConfig(ModelInitMixin):
         self._model = None
         self.tokenizer = None
         self.collator = None
+        self.metric_to_track = "loss"
 
     @property
     def model(self):
@@ -69,10 +71,10 @@ class ModelFromConfig(ModelInitMixin):
 
     def _init_model_and_tokenizer(
         self,
-        dataset: DatasetDict = None,
         tokenizer: Optional[
             Union[PreTrainedTokenizerFast, HfTokenizerFromConfig]
         ] = None,
+        **kwargs,
     ):
         """
         Initializes the model and tokenization. Also initializes the collator function, if applicable.
@@ -95,7 +97,37 @@ class ModelFromConfig(ModelInitMixin):
 
         raise NotImplementedError("Subclasses must implement this method.")
 
-    def _prepare_for_training(self, dataset: DatasetDict) -> Dict[str, DataLoader]:
+    def _prepare_for_training(self):
+        """
+        Prepares the model, optimizers, and schedulers for training. Should be called after _init_model_and_tokenizer.
+
+        Raises
+        ------
+        ValueError
+            If the 'train' split is not present in the dataset.
+        """
+
+        self.optimizer = AdamW(
+            self._model.parameters(), lr=float(self.lr), weight_decay=0.05
+        )
+
+        self.scheduler = get_scheduler(
+            "inverse_sqrt",
+            optimizer=self.optimizer,
+            num_warmup_steps=self.num_warmup_steps * self.accelerator.num_processes,
+            num_training_steps=self.num_train_steps // self.grad_accumulation_steps
+            if self.num_train_steps
+            else None,
+        )
+
+        self._model, self.optimizer, self.scheduler = self.accelerator.prepare(
+            self._model, self.optimizer, self.scheduler
+        )
+
+        self.accelerator.register_for_checkpointing(self.scheduler)
+        self._model.gradient_checkpointing_enable()
+
+    def _prepare_data(self, dataset: DatasetDict) -> Dict[str, DataLoader]:
         """
         Prepares the model, optimizers, and schedulers for training.
 
@@ -126,28 +158,8 @@ class ModelFromConfig(ModelInitMixin):
             split: self._tokenize_and_collate(dataset[split]) for split in splits
         }
 
-        self.optimizer = AdamW(
-            self._model.parameters(), lr=float(self.lr), weight_decay=0.05
-        )
-
-        self.scheduler = get_scheduler(
-            "linear",
-            optimizer=self.optimizer,
-            num_warmup_steps=self.num_warmup_steps,
-            num_training_steps=self.num_train_steps // self.grad_accumulation_steps
-            if self.num_train_steps
-            else None,
-        )
-
-        self._model, self.optimizer, self.scheduler = self.accelerator.prepare(
-            self._model, self.optimizer, self.scheduler
-        )
-
         for k, loader in loaders.items():
             loaders[k] = self.accelerator.prepare(loader)
-
-        self.accelerator.register_for_checkpointing(self.scheduler)
-        self._model.gradient_checkpointing_enable()
 
         return loaders
 
@@ -178,11 +190,14 @@ class ModelFromConfig(ModelInitMixin):
 
     def train(
         self,
-        dataset: DatasetDict,
+        dataset: Union[
+            DatasetDict, IterableDatasetDict, MonolingualLoader, MultilingualLoader
+        ],
         tokenizer: Optional[
             Union[PreTrainedTokenizerFast, HfTokenizerFromConfig]
         ] = None,
         eval_split: str = "validation",
+        **kwargs,
     ):
         """
         Trains the model on the provided dataset using a generic training loop.
@@ -202,15 +217,19 @@ class ModelFromConfig(ModelInitMixin):
             If not provided, tries to load the tokenization via the model string, e.g. "bert-base-uncased".
         eval_split : str, optional
             The split to use for evaluation during training (default is 'validation').
+        **kwargs
+            Additional keyword arguments to pass to the training loop.
         """
 
-        self._init_model_and_tokenizer(dataset=dataset, tokenizer=tokenizer)
-        loaders = self._prepare_for_training(dataset)
-        running_loss = torch.inf
-        running_f1 = 0
-        # Initialize progress bar based on total steps if specified, otherwise use a standard tqdm bar
-        total_steps = self.num_train_steps if self.num_train_steps else None
-        progress_bar = tqdm(total=total_steps, position=0, leave=True)
+        self._init_model_and_tokenizer(tokenizer, **kwargs)
+        self._prepare_for_training()
+        loaders = self._prepare_data(dataset)
+        running_metric = 0.0
+        progress_bar = tqdm(
+            total=self.num_train_steps if self.num_train_steps else None,
+            position=0,
+            leave=True,
+        )
 
         if self.num_train_steps:
             logger.info(
@@ -220,55 +239,49 @@ class ModelFromConfig(ModelInitMixin):
             f"{self.batch_size} examples per batch, {self.grad_accumulation_steps} grad. accumulation steps."
         )
 
-        # Keep track of global steps across epochs
         global_step = 0
         epoch = 0
 
-        # Continue training until we reach max steps or max epochs
         while (
             not self.num_train_steps or global_step < self.num_train_steps
         ) and epoch < self.num_train_epochs:
             self._model.train()
             logger.info(f"Starting epoch {epoch + 1}/{self.num_train_epochs}")
 
-            # Process batches within the current epoch
             with self.accelerator.accumulate(self._model):
                 for batch in loaders["train"]:
-                    # Break if we've reached max steps
                     if self.num_train_steps and global_step >= self.num_train_steps:
                         break
 
-                    # Forward pass
                     outputs = self._model(**batch)
                     loss = outputs.loss
 
-                    # Logging
                     loss_str = f"Step {global_step + 1} | Epoch {epoch + 1} | Loss: {loss.item():.4f}"
                     progress_bar.set_description(loss_str)
                     progress_bar.update(1)
                     if self.wandb:
                         wandb.log({"train": {"loss": loss.item()}})
 
-                    # Scale loss for gradient accumulation
                     loss = loss / self.grad_accumulation_steps
 
-                    # Backward pass
                     self.accelerator.backward(loss)
 
-                    # Update weights when accumulation is complete
                     if (global_step + 1) % self.grad_accumulation_steps == 0:
                         self.optimizer.step()
                         self.scheduler.step()
                         self.optimizer.zero_grad()
 
-                    if self.num_eval_steps and global_step % self.num_eval_steps == 0:
+                    if (
+                        self.num_eval_steps
+                        and (global_step + 1) % self.num_eval_steps == 0
+                    ):
                         if eval_split not in loaders:
                             logger.warning(
                                 f"No {eval_split} split found. Skipping evaluation."
                             )
                             if self.checkpoint_path:
                                 logger.info(
-                                    f"Saving model checkpoint at epoch {epoch}."
+                                    f"Saving model checkpoint at step {global_step+1}."
                                 )
                                 self.accelerator.save_state(
                                     self.checkpoint_path, safe_serialization=False
@@ -283,27 +296,15 @@ class ModelFromConfig(ModelInitMixin):
                             )
 
                             if self.checkpoint_path:
-                                try:
-                                    if scores["loss"] < running_loss:
-                                        logger.info(
-                                            f"Saving model checkpoint at epoch {epoch}."
-                                        )
-                                        self.accelerator.save_state(
-                                            self.checkpoint_path,
-                                            safe_serialization=False,
-                                        )
-                                        running_loss = scores["loss"]
-                                # TODO: needs to be fixed
-                                except KeyError:
-                                    if scores["f1"] > running_f1:
-                                        logger.info(
-                                            f"Saving model checkpoint at epoch {epoch}."
-                                        )
-                                        self.accelerator.save_state(
-                                            self.checkpoint_path,
-                                            safe_serialization=False,
-                                        )
-                                        running_f1 = scores["f1"]
+                                if scores[self.metric_to_track] < running_metric:
+                                    logger.info(
+                                        f"Saving model checkpoint at epoch {epoch}."
+                                    )
+                                    self.accelerator.save_state(
+                                        self.checkpoint_path,
+                                        safe_serialization=False,
+                                    )
+                                    running_metric = scores[self.metric_to_track]
 
                             if self.wandb:
                                 wandb.log({"val": scores})
@@ -312,8 +313,10 @@ class ModelFromConfig(ModelInitMixin):
 
                     global_step += 1
 
-                if self.num_train_steps and global_step >= self.num_train_steps:
-                    break
+                if self.num_train_steps:
+                    if global_step >= self.num_train_steps:
+                        break
+                    self.num_train_epochs += 1
 
             epoch += 1
 
@@ -333,7 +336,9 @@ class ModelFromConfig(ModelInitMixin):
 
     def test(
         self,
-        dataset: DatasetDict,
+        dataset: Union[
+            DatasetDict, IterableDatasetDict, MonolingualLoader, MultilingualLoader
+        ],
         split: str = "test",
         output_file: Optional[str] = None,
     ):
@@ -342,7 +347,7 @@ class ModelFromConfig(ModelInitMixin):
 
         Parameters
         ----------
-        dataset : DatasetDict
+        dataset : Union[DatasetDict, IterableDatasetDict, MonolingualLoader, MultilingualLoader]
             The dataset to use for evaluation.
         split : str, optional
             The split to use for evaluation (default is 'test').
@@ -374,4 +379,12 @@ class ModelFromConfig(ModelInitMixin):
         """
 
         logger.info(f"Saving model to {path}.")
-        self.accelerator.save_state(self.checkpoint_path)
+        self.accelerator.wait_for_everyone()
+        unwrapped_model = self.accelerator.unwrap_model(self._model)
+        unwrapped_model.save_pretrained(
+            path,
+            is_main_process=self.accelerator.is_main_process,
+            save_function=self.accelerator.save_function,
+        )
+
+        # self.accelerator.save_state(self.checkpoint_path)

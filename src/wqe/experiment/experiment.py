@@ -13,10 +13,10 @@ from transformers import AutoTokenizer, PreTrainedTokenizerFast
 from ..data.loader import MonolingualLoader, MultilingualLoader, LangID
 from ..tokenization.base import HfTokenizerFromConfig
 from ..tokenization.spm import HfSentencePieceTokenizer
-from ..tokenization.utils import merge_tokenizers
 from ..model.pretrain import MLM, CLM
 from ..model.finetune import Tagger, Classifier
 from ..utils.config import MainConfig
+from ..utils.tokenization import merge_tokenizers
 from ..utils.validation import (
     validate_and_format_dataset,
     validate_and_format_splits,
@@ -81,7 +81,7 @@ class ExperimentRunner:
                 "`dataset`, `tokenization`, `pretrain`, `finetune`."
             )
 
-    def process_dataset(self) -> MonolingualLoader:
+    def process_dataset(self) -> MonolingualLoader or MultilingualLoader:
         """
         Load and process the language according to the config.
 
@@ -131,15 +131,15 @@ class ExperimentRunner:
         if cfg.partition:
             dataset.apply_partition(**asdict(cfg.partition), keep_columns=False)
 
+        if cfg.split:
+            dataset.generate_splits(**asdict(cfg.split))
+
         if cfg.language_sampling:
-            if cfg.language_sampling.raw_weights:
+            if cfg.language_sampling.raw_weights is not None:
                 cfg.language_sampling.raw_weights = json.load(
                     open(cfg.language_sampling.raw_weights, "r")
                 )
             dataset.apply_language_sampling(**asdict(cfg.language_sampling))
-
-        if cfg.split:
-            dataset.generate_splits(**asdict(cfg.split))
 
         if cfg.export:
             assert (
@@ -281,17 +281,31 @@ class ExperimentRunner:
                 asdict(cfg.training_parameters),
             )
 
-        model.train(dataset, tokenizer=tokenizer, eval_split="test")
+        if cfg.language_sampling:
+            assert isinstance(
+                dataset, MultilingualLoader
+            ), "Language sampling requires a multilingual dataset."
+            if cfg.language_sampling.raw_weights is not None:
+                cfg.language_sampling.raw_weights = json.load(
+                    open(cfg.language_sampling.raw_weights, "r")
+                )
+            loaders = {
+                lang_id: loader.data for lang_id, loader in dataset.loaders.items()
+            }
+            model.train_multilingual(
+                loaders,
+                tokenizer=tokenizer,
+                eval_split="test",
+                **asdict(cfg.language_sampling),
+            )
+        else:
+            model.train(dataset, tokenizer=tokenizer, eval_split="test")
 
         if cfg.test_path:
-            if len(self.languages) == 1:
-                test_dataset = MonolingualLoader(self.languages[0].id).load(
-                    cfg.test_path, split="test", streaming=True
-                )
-            else:
-                test_dataset = MultilingualLoader(self.languages).load(
-                    cfg.test_path, split="test", streaming=True
-                )
+            test_dataset = MonolingualLoader(
+                self.languages[0].id if len(self.languages) == 1 else self.languages
+            )
+            test_dataset.load(cfg.test_path, split="test", streaming=True)
             model.test(test_dataset)
 
         if cfg.export:

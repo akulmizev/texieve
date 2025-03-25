@@ -18,7 +18,7 @@ from numpy import ndarray
 from scipy.stats import gaussian_kde
 from transformers import PreTrainedTokenizerFast
 
-from .utils import c4_filter, compute_ngrams, tokenize, measure_deletion
+from ..utils.data import c4_filter, compute_ngrams, tokenize, measure_deletion
 from ..utils.maps import METRIC_MAP
 from ..utils.stats import normalize
 

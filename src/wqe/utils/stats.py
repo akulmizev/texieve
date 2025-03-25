@@ -1,4 +1,5 @@
 import logging
+from typing import List
 
 import numpy as np
 from scipy import stats
@@ -65,3 +66,48 @@ def get_representative_sample_size(distribution, metric="ks"):
     elbow_index = find_elbow(sample_sizes, results)
 
     return sample_sizes[elbow_index]
+
+
+def get_sampling_probs(
+    raw_weights: List[float | int], strategy: str = "uniform", temperature: float = 1.0
+):
+    """
+    Calculates sampling probabilities for each language based on the specified strategy.
+
+    Parameters
+    ----------
+    raw_weights : Tuple[Any]
+        The raw weights for each language.
+    strategy : str
+        The strategy for calculating sampling probabilities.
+    temperature : float
+        The temperature parameter for temperature-based sampling.
+
+    Returns
+    -------
+    List[float]
+        A list of sampling probabilities for each language.
+    """
+
+    if strategy == "uniform":
+        probs = [1 / len(raw_weights)] * len(raw_weights)
+    elif strategy == "proportional":
+        total = sum(raw_weights)
+        probs = [weight / total for weight in raw_weights]
+    elif strategy == "inverse_proportional":
+        inverse_probs = [1 / weight for weight in raw_weights]
+        total = sum(inverse_probs)
+        probs = [prob / total for prob in inverse_probs]
+    elif strategy == "inverse_proportional_sqrt":
+        inverse_sqrt_probs = [1 / np.sqrt(weight) for weight in raw_weights]
+        total = sum(inverse_sqrt_probs)
+        probs = [prob / total for prob in inverse_sqrt_probs]
+    elif strategy == "temperature":
+        counts = [weight for weight in raw_weights]
+        temp_probs = [count ** (1 / temperature) for count in counts]
+        total = sum(temp_probs)
+        probs = [prob / total for prob in temp_probs]
+    else:
+        raise ValueError(f"Invalid strategy: {strategy}")
+
+    return probs

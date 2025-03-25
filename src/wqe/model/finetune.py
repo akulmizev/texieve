@@ -5,7 +5,6 @@ from typing import Union
 import evaluate
 import torch
 
-from datasets import DatasetDict
 from torch.utils.data import DataLoader
 from transformers import (
     AutoModelForTokenClassification,
@@ -74,23 +73,22 @@ class Tagger(ModelFromConfig):
 
     def _init_model_and_tokenizer(
         self,
-        dataset: DatasetDict = None,
         tokenizer: Union[PreTrainedTokenizerFast, HfTokenizerFromConfig] = None,
+        label_set: set = None,
     ):
         """
         Initialize the model and tokenization for tagging.
 
         Parameters
         ----------
-        dataset : DatasetDict, optional
-            The dataset used for the task.
-            Assumes the `tags` feature in the dataset.
         tokenizer : Union[PreTrainedTokenizerFast, HfTokenizerFromConfig], optional
             The tokenization to be used. Generally not needed, as the tokenization will be loaded
             from the same path as the model.
+        label_set : set, optional
+            Set of labels for the task.
         """
 
-        self.label_set = dataset["train"].features["tags"].feature.names
+        self.label_set = label_set
 
         if self.seed:
             set_seed(seed=self.seed)
@@ -370,23 +368,22 @@ class Classifier(ModelFromConfig):
 
     def _init_model_and_tokenizer(
         self,
-        dataset: DatasetDict = None,
         tokenizer: Union[PreTrainedTokenizerFast, HfTokenizerFromConfig] = None,
+        label_set: set = None,
     ):
         """
         Initialize the model and tokenization for classification.
 
         Parameters
         ----------
-        dataset : DatasetDict, optional
-            The dataset used for the task.
-            Assumes the `labels` feature in the dataset.
         tokenizer : Union[PreTrainedTokenizerFast, HfTokenizerFromConfig], optional
             The tokenization to be used. Generally not needed, as the tokenization will be loaded
             from the same path as the model.
+        label_set : set, optional
+            Set of labels for the task.
         """
 
-        self.label_set = dataset["train"].features["labels"].names
+        self.label_set = label_set
 
         self._model = AutoModelForSequenceClassification.from_pretrained(
             self.load_path,

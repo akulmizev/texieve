@@ -4,12 +4,15 @@ import math
 from typing import Dict, Optional, Union
 
 import torch
+import wandb
 
-from datasets import Dataset, DatasetDict
+from datasets import Dataset, DatasetDict, IterableDatasetDict
 from datasets.utils.logging import set_verbosity_error
+from numpy.random import choice
 from peft import get_peft_model, prepare_model_for_kbit_training
 from tokenizers.processors import TemplateProcessing
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 from transformers import (
     CONFIG_MAPPING,
     AutoModelForMaskedLM,
@@ -21,6 +24,7 @@ from transformers import (
 from .base import ModelFromConfig
 from ..tokenization.base import HfTokenizerFromConfig
 from ..utils.config import TrainingParameters
+from ..utils.stats import get_sampling_probs
 
 __all__ = ["MLM", "CLM"]
 
@@ -60,13 +64,14 @@ class MLM(ModelFromConfig):
 
     def __init__(self, load_path: str, config: TrainingParameters, **kwargs):
         super().__init__(load_path, config, **kwargs)
+        self.metric_to_track = "perplexity"
 
     def _init_model_and_tokenizer(
         self,
-        dataset: DatasetDict = None,
         tokenizer: Optional[
             Union[PreTrainedTokenizerFast, HfTokenizerFromConfig]
         ] = None,
+        **kwargs,
     ):
         """
         Initializes the model and tokenization for MLM.
@@ -74,12 +79,11 @@ class MLM(ModelFromConfig):
 
         Parameters
         ----------
-        dataset : DatasetDict, optional
-            The dataset to use for initializing the model and tokenization.
-            Generally not needed here, as no labels are required.
         tokenizer : PreTrainedTokenizerFast or HfTokenizerFromConfig, optional
             The tokenization to use for the model.
             If not provided, the tokenization will be loaded from the hub.
+        **kwargs
+            Additional keyword arguments to pass to the tokenizer.
         """
 
         if self.load_path.endswith(".json"):
@@ -215,6 +219,166 @@ class MLM(ModelFromConfig):
 
         return {"loss": eval_loss, "perplexity": perplexity}
 
+    def train_multilingual(
+        self,
+        datasets: Dict[str, DatasetDict or IterableDatasetDict],
+        tokenizer: Optional[
+            Union[PreTrainedTokenizerFast, HfTokenizerFromConfig]
+        ] = None,
+        eval_split: str = "validation",
+        sampling_strategy: str = "uniform",
+        temperature: float = 1.0,
+        raw_weights: Optional[Dict[str, float or int]] = None,
+        **kwargs,
+    ):
+        if raw_weights is not None:
+            if not all(lang_id in raw_weights.keys() for lang_id in datasets.keys()):
+                raise ValueError("Raw weights must cover all languages in the loader.")
+            raw_weights = {lang_id: raw_weights[lang_id] for lang_id in datasets.keys()}
+        else:
+            if all(isinstance(dataset, DatasetDict) for dataset in datasets.values()):
+                raw_weights = {
+                    lang_id: dataset["train"].num_rows
+                    for lang_id, dataset in datasets.items()
+                }
+            elif all(
+                isinstance(dataset, IterableDatasetDict)
+                for dataset in datasets.values()
+            ):
+                logger.warning(
+                    "Calculating raw weights for streaming datasets. This may take a while."
+                )
+                raw_weights = {
+                    lang_id: sum(1 for _ in loader.data["train"])
+                    for lang_id, loader in datasets.items()
+                }
+            else:
+                raise ValueError(
+                    "Datasets must be entirely DatasetDict or IterableDatasetDict."
+                )
+
+        langs = list(datasets.keys())
+        lang_proba = get_sampling_probs(
+            list(raw_weights.values()),
+            strategy=sampling_strategy,
+            temperature=temperature,
+        )
+
+        self._init_model_and_tokenizer(tokenizer, **kwargs)
+        self._prepare_for_training()
+        loaders = {
+            lang: self._prepare_data(loader) for lang, loader in datasets.items()
+        }
+
+        running_metric = 0.0
+        progress_bar = tqdm(
+            total=self.num_train_steps if self.num_train_steps else None,
+            position=0,
+            leave=True,
+        )
+
+        if self.num_train_steps:
+            logger.info(
+                f"Training model for {self.num_train_epochs} epoch(s) ({self.num_train_steps} steps)."
+            )
+        logger.info(
+            f"{self.batch_size} examples per batch, {self.grad_accumulation_steps} grad. accumulation steps."
+        )
+
+        global_step = 0
+        epoch = 0
+
+        while (
+            not self.num_train_steps or global_step < self.num_train_steps
+        ) and epoch < self.num_train_epochs:
+            self._model.train()
+            logger.info(f"Starting epoch {epoch + 1}/{self.num_train_epochs}")
+
+            with self.accelerator.accumulate(self._model):
+                sampled_lang = langs[choice(len(langs), p=lang_proba)]
+                batch = next(iter(loaders[sampled_lang]["train"]))
+
+                if self.num_train_steps and global_step >= self.num_train_steps:
+                    break
+
+                outputs = self._model(**batch)
+                loss = outputs.loss
+
+                loss_str = f"Step {global_step + 1} | Epoch {epoch + 1} | Lang {sampled_lang} | Loss: {loss.item():.4f}"
+                progress_bar.set_description(loss_str)
+                progress_bar.update(1)
+                if self.wandb:
+                    wandb.log({"train": {"loss": loss.item()}})
+
+                loss = loss / self.grad_accumulation_steps
+
+                self.accelerator.backward(loss)
+
+                if (global_step + 1) % self.grad_accumulation_steps == 0:
+                    self.optimizer.step()
+                    self.scheduler.step()
+                    self.optimizer.zero_grad()
+
+                if self.num_eval_steps and (global_step + 1) % self.num_eval_steps == 0:
+                    if eval_split not in loaders:
+                        logger.warning(
+                            f"No {eval_split} split found. Skipping evaluation."
+                        )
+                        if self.checkpoint_path:
+                            logger.info(
+                                f"Saving model checkpoint at step {global_step+1}."
+                            )
+                            self.accelerator.save_state(
+                                self.checkpoint_path, safe_serialization=False
+                            )
+                    else:
+                        scores = self._eval_loop(loaders[eval_split])
+                        scores_str = " | ".join(
+                            [f"val. {k}: {v:.4f}" for k, v in scores.items()]
+                        )
+                        logger.info(
+                            f"Step {global_step+1} | Epoch {epoch+1} | {scores_str}"
+                        )
+
+                        if self.checkpoint_path:
+                            if scores[self.metric_to_track] < running_metric:
+                                logger.info(
+                                    f"Saving model checkpoint at epoch {epoch}."
+                                )
+                                self.accelerator.save_state(
+                                    self.checkpoint_path,
+                                    safe_serialization=False,
+                                )
+                                running_metric = scores[self.metric_to_track]
+
+                        if self.wandb:
+                            wandb.log({"val": scores})
+
+                        self._model.train()
+
+                global_step += 1
+
+                if self.num_train_steps:
+                    if global_step >= self.num_train_steps:
+                        break
+                    self.num_train_epochs += 1
+
+            epoch += 1
+
+        progress_bar.close()
+        logger.info("Training complete.")
+        if self.checkpoint_path:
+            # TODO: getting a:
+            # "RuntimeError: Error(s) in loading state_dict for PeftModel:Unexpected key(s) in state_dict"
+            # error when trying to load a peft model here. Have not found a solution yet.
+            if hasattr(self._model, "peft_config") and (
+                self._model.peft_config is not None
+            ):
+                logger.warning("Trying to load a peft model, this doesn't work yet.")
+            else:
+                logger.info(f"Loading best model from {self.checkpoint_path}.")
+                self.accelerator.load_state(self.checkpoint_path)
+
 
 class CLM(MLM):
     """
@@ -241,20 +405,21 @@ class CLM(MLM):
 
     def _init_model_and_tokenizer(
         self,
-        dataset: DatasetDict = None,
         tokenizer: Optional[
             Union[PreTrainedTokenizerFast, HfTokenizerFromConfig]
         ] = None,
+        **kwargs,
     ):
         """
         Initializes the model and tokenization for CLM.
 
         Parameters
         ----------
-        dataset : DatasetDict, optional
-            The dataset to use for initializing the model and tokenization.
         tokenizer : PreTrainedTokenizerFast or HfTokenizerFromConfig, optional
             The tokenization to use for the model.
+            If not provided, the tokenization will be loaded from the hub.
+        **kwargs
+            Additional keyword arguments to pass to the tokenizer.
         """
 
         if self.load_path.endswith(".json"):

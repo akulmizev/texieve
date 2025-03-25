@@ -11,6 +11,7 @@ from datasets import (
     concatenate_datasets,
     disable_caching,
     load_dataset,
+    load_from_disk,
     Dataset,
     DatasetDict,
     IterableDataset,
@@ -25,14 +26,15 @@ from transformers import PreTrainedTokenizerFast
 from . import resources
 from .processing import PreFilter, Deduplicate, Threshold, Partition
 from .source_loaders import load_wiki, load_c4, load_bible, load_nllb
-from .utils import (
+from ..utils.config import Dataset as DatasetConfig
+from ..utils.data import (
     add_column,
     combine_datasets,
     convert_iterable_dataset_to_regular,
     get_column_names,
-    get_sampling_probs,
 )
-from ..utils.config import Dataset as DatasetConfig
+from ..utils.stats import get_sampling_probs
+
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -233,56 +235,6 @@ class BaseLoader:
                 language = f"{data['language'][:26]}... "
 
             print(f"{iso3:<15}{language:<30}{iso3:<10}{scripts:<30}{sources:<40}")
-
-    def generate_splits(
-        self, test_size: float = 0.1, shuffle: bool = True, seed: int = 42
-    ):
-        """
-        Generates train and test splits for the specified dataset.
-
-        Parameters
-        ----------
-        test_size : float, optional
-            The size of the test split. Defaults to 0.1.
-        shuffle : bool, optional
-            Whether to shuffle the dataset before splitting. Defaults to True.
-        seed : int, optional
-            The random seed to use for shuffling. Defaults to 42.
-
-        Returns
-        -------
-        None
-        """
-        assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
-        if self.streaming:
-            logger.warning(
-                "Streaming mode detected. Convert to Dataset before calling this method."
-            )
-        else:
-            self.data = self.data["train"].train_test_split(
-                test_size=test_size, shuffle=shuffle, seed=seed
-            )
-
-    def save(self, path: str):
-        """
-        Saves the dataset to disk.
-
-        Parameters
-        ----------
-        path : str
-            The path to save the dataset to.
-        """
-        logger.info(f"Saving dataset to: {path}")
-        if not os.path.exists(f"{path}"):
-            os.makedirs(f"{path}")
-
-        if self.streaming:
-            logger.warning(
-                "Saving is not supported for streaming datasets. Converting to Dataset..."
-            )
-            self.to_regular()
-
-        self.data.save_to_disk(f"{path}")
 
     def push_to_hub(self, repo_id: str, **kwargs):
         """
@@ -674,7 +626,14 @@ class MonolingualLoader(BaseLoader):
             local_path = os.path.join(load_path, self.lang.id)
             if os.path.exists(local_path):
                 try:
-                    self.data = load_dataset(local_path, streaming=self.streaming)
+                    self.data = load_from_disk(local_path)
+                    if self.streaming:
+                        self.data = IterableDatasetDict(
+                            {
+                                split_name: split_dataset.to_iterable_dataset()
+                                for split_name, split_dataset in self.data.items()
+                            }
+                        )
                     self.sources = [local_path]
                 except DatasetNotFoundError:
                     logger.error(
@@ -708,8 +667,8 @@ class MonolingualLoader(BaseLoader):
                     self.sources.remove(source)
                     continue
                 dataset = self._load_source(source, streaming=self.streaming, **kwargs)
-                for split, split_dataset in dataset.items():
-                    data_dict[split].append(split_dataset)
+                for split_name, split_dataset in dataset.items():
+                    data_dict[split_name].append(split_dataset)
 
             if not data_dict:
                 raise ValueError(
@@ -947,6 +906,56 @@ class MonolingualLoader(BaseLoader):
 
         return dataset
 
+    def save(self, path: str):
+        """
+        Saves the dataset to disk.
+
+        Parameters
+        ----------
+        path : str
+            The path to save the dataset to.
+        """
+        logger.info(f"Saving dataset to: {path}")
+        if not os.path.exists(f"{path}"):
+            os.makedirs(f"{path}")
+
+        if self.streaming:
+            logger.warning(
+                "Saving is not supported for streaming datasets. Converting to Dataset..."
+            )
+            self.to_regular()
+
+        self.data.save_to_disk(f"{path}")
+
+    def generate_splits(
+        self, test_size: float = 0.1, shuffle: bool = True, seed: int = 42
+    ):
+        """
+        Generates train and test splits for the specified dataset.
+
+        Parameters
+        ----------
+        test_size : float, optional
+            The size of the test split. Defaults to 0.1.
+        shuffle : bool, optional
+            Whether to shuffle the dataset before splitting. Defaults to True.
+        seed : int, optional
+            The random seed to use for shuffling. Defaults to 42.
+
+        Returns
+        -------
+        None
+        """
+        assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
+        if self.streaming:
+            logger.warning(
+                "Streaming mode detected. Convert to Dataset before calling this method."
+            )
+        else:
+            self.data = self.data["train"].train_test_split(
+                test_size=test_size, shuffle=shuffle, seed=seed
+            )
+
 
 class MultilingualLoader(BaseLoader):
     """
@@ -1027,11 +1036,11 @@ class MultilingualLoader(BaseLoader):
                 **kwargs,
             )
 
-            for split, split_dataset in loader.data.items():
+            for split_name, split_dataset in loader.data.items():
                 column_names = get_column_names(split_dataset)
                 if "language" not in column_names:
                     loader.data[split] = add_column(split_dataset, "language", lang_id)
-                combined_datasets[split].append(loader.data[split])
+                combined_datasets[split_name].append(loader.data[split_name])
 
         self.data = combine_datasets(combined_datasets, streaming=self.streaming)
 
@@ -1273,46 +1282,33 @@ class MultilingualLoader(BaseLoader):
                 lang_id in raw_weights.keys() for lang_id in self.loaders.keys()
             ):
                 raise ValueError("Raw weights must cover all languages in the loader.")
-            weights_to_normalize = tuple(
+            weights_to_normalize = [
                 raw_weights[lang_id] for lang_id in self.loaders.keys()
-            )
+            ]
         else:
             if self.streaming:
                 logger.warning(
                     "Calculating raw weights for streaming datasets. This may take a while."
                 )
-                weights_to_normalize = tuple(
-                    [
-                        sum(1 for _ in loader.data["train"])
-                        for loader in self.loaders.values()
-                    ]
-                )
+                weights_to_normalize = [
+                    sum(1 for _ in loader.data["train"])
+                    for loader in self.loaders.values()
+                ]
             else:
-                weights_to_normalize = tuple(
+                weights_to_normalize = [
                     loader.data["train"].num_rows
                     for lang_id, loader in self.loaders.items()
-                )
+                ]
 
         logger.info(f"Applying language sampling with strategy: {sampling_strategy}.")
         sampling_probs = get_sampling_probs(
             weights_to_normalize, sampling_strategy, temperature
         )
 
-        sampled_datasets = defaultdict(list)
-        for split, dataset in self.data.items():
-            for lang_id, loader in self.loaders.items():
-                sampled_datasets[split].append(loader[split])
-
-            sampled_datasets[split] = interleave_datasets(
-                sampled_datasets[split],
-                stopping_strategy=interleaving_strategy,
-                probabilities=sampling_probs,
-            )
-
-        self.data = (
-            IterableDatasetDict(sampled_datasets)
-            if self.streaming
-            else DatasetDict(sampled_datasets)
+        self.data["train"] = interleave_datasets(
+            [loader.data["train"] for loader in self.loaders.values()],
+            stopping_strategy=interleaving_strategy,
+            probabilities=sampling_probs,
         )
 
         return self
@@ -1489,7 +1485,7 @@ class MultilingualLoader(BaseLoader):
             for lang_id, loader in self.loaders.items():
                 loader.save(os.path.join(path, lang_id))
         else:
-            super().save(path)
+            self.data.save_to_disk(path)
 
     def push_to_hub(
         self, repo_id: str, save_loaders_separately: bool = False, **kwargs
@@ -1509,3 +1505,36 @@ class MultilingualLoader(BaseLoader):
                 loader.push_to_hub(repo_id, config_name=lang_id, **kwargs)
         else:
             super().push_to_hub(repo_id, **kwargs)
+
+    def generate_splits(
+        self, test_size: float = 0.1, shuffle: bool = True, seed: int = 42
+    ):
+        """
+        Generates train and test splits for the specified dataset.
+
+        Parameters
+        ----------
+        test_size : float, optional
+            The size of the test split. Defaults to 0.1.
+        shuffle : bool, optional
+            Whether to shuffle the dataset before splitting. Defaults to True.
+        seed : int, optional
+            The random seed to use for shuffling. Defaults to 42.
+
+        Returns
+        -------
+        None
+        """
+
+        assert self.data is not None, "Dataset not loaded. Run `load_dataset()` first."
+        if self.streaming:
+            logger.warning(
+                "Streaming mode detected. Convert to Dataset before calling this method."
+            )
+        else:
+            combined_datasets = defaultdict(list)
+            for loader in self.loaders.values():
+                loader.generate_splits(test_size, shuffle, seed)
+                for split, split_dataset in loader.data.items():
+                    combined_datasets[split].append(split_dataset)
+            self.data = combine_datasets(combined_datasets, streaming=self.streaming)
