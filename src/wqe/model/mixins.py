@@ -65,8 +65,6 @@ class ModelInitMixin:
         Flag indicating whether to use Weights & Biases for logging.
     """
 
-    MAX_GPU_BATCH_SIZE = 128
-
     def __init__(
         self,
         model_type: str,
@@ -117,10 +115,6 @@ class ModelInitMixin:
             mixed_precision=self.mixed_precision,
             device_placement=True,
         )
-
-        if self.batch_size > self.MAX_GPU_BATCH_SIZE:
-            self.grad_accumulation_steps = self.batch_size // self.MAX_GPU_BATCH_SIZE
-            self.batch_size = self.MAX_GPU_BATCH_SIZE
 
         if self.accelerator.mixed_precision == "fp8":
             self.pad_to_multiple_of = 16
