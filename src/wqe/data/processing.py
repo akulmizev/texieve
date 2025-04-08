@@ -5,7 +5,7 @@ import pickle
 
 from typing import Any, Dict, List, Optional, Pattern, Union
 
-import fasttext
+# import fasttext
 import multiprocessing as mp
 import tqdm
 
@@ -18,7 +18,7 @@ from numpy import ndarray
 from scipy.stats import gaussian_kde
 from transformers import PreTrainedTokenizerFast
 
-from ..utils.data import c4_filter, compute_ngrams, tokenize, measure_deletion
+from .utils import c4_filter, compute_ngrams, tokenize, measure_deletion
 from ..utils.maps import METRIC_MAP
 from ..utils.stats import normalize
 
@@ -51,11 +51,11 @@ class PreFilter:
         if langs_to_keep:
             self.lang_id = True
             self.langs_to_keep = langs_to_keep
-            self.lang_id_model = fasttext.load_model(
-                hf_hub_download(
-                    repo_id="cis-lmu/glotlid", filename="model.bin", cache_dir=None
-                )
-            )
+            # self.lang_id_model = fasttext.load_model(
+                # hf_hub_download(
+                    # repo_id="cis-lmu/glotlid", filename="model.bin", cache_dir=None
+                # )
+            # )
         else:
             self.langs_to_keep = None
             self.lang_id_model = None
@@ -107,7 +107,8 @@ class PreFilter:
     def _pre_filter_doc(
         doc: Dict[str, Any],
         patterns: Dict[str, Pattern],
-        model: fasttext.FastText = None,
+        # model: fasttext.FastText = None,
+        model: None,
         langs_to_keep: List[str] = None,
         apply_c4_filter: bool = False,
         urls_to_remove: List[str] = None,

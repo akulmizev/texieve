@@ -181,12 +181,12 @@ class ExperimentRunner:
 
         if self.finetune:
             logger.info(f"Loading tokenizer from {self.finetune.load_path}")
-            tokenizer = HfTokenizerFromConfig.from_pretrained(self.finetune.load_path)
+            tokenizer = AutoTokenizer.from_pretrained(self.finetune.load_path)
 
         else:
             if cfg.load_path:
                 logger.info(f"Loading tokenization from {cfg.load_path}")
-                tokenizer = HfTokenizerFromConfig.from_pretrained(cfg.load_path)
+                tokenizer = AutoTokenizer.from_pretrained(cfg.load_path)
 
             elif cfg.tokenizer_config:
                 assert (
@@ -362,10 +362,12 @@ class ExperimentRunner:
             scores_file = None
 
         if task in ["ner", "pos"]:
+            label_set = set(finetune_dataset['train']['tags'])
             model = Tagger(
                 cfg.load_path, cfg.training_parameters, checkpoint_path=checkpoint_path
             )
         elif task in ["classification", "nli"]:
+            label_set = set(finetune_dataset['train']['labels'])
             model = Classifier(
                 cfg.load_path, cfg.training_parameters, checkpoint_path=checkpoint_path
             )
@@ -382,7 +384,7 @@ class ExperimentRunner:
             )
 
         eval_split = "validation" if "validation" in finetune_dataset.keys() else None
-        model.train(finetune_dataset, eval_split=eval_split)
+        model.train(finetune_dataset, eval_split=eval_split, label_set=label_set)
 
         if "test" in finetune_dataset.keys():
             model.test(finetune_dataset, split="test", output_file=scores_file)

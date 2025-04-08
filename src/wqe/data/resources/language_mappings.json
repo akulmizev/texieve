@@ -483,7 +483,7 @@
             "nllb"
         ]
     },
-    "nan": {
+    "zh-min-nan": {
         "bcp_47_code": "nan",
         "wikipedia_id": "zh-min-nan",
         "language": "Min Nan Chinese",
@@ -2175,7 +2175,7 @@
     },
     "zho": {
         "bcp_47_code": "zh",
-        "wikipedia_id": "zh-classical",
+        "wikipedia_id": "zh",
         "language": "Chinese",
         "scripts": [
             "Hani"
@@ -6117,10 +6117,11 @@
     },
     "jav": {
         "bcp_47_code": "jv",
-        "wikipedia_id": "map-bms",
+        "wikipedia_id": "jv",
         "language": "Javanese",
         "scripts": [
-            "Latn"
+            "Latn",
+            "Java"
         ],
         "sources": [
             "wiki",
@@ -9899,16 +9900,28 @@
     },
     "srp": {
         "bcp_47_code": "sr",
-        "wikipedia_id": "sh",
+        "wikipedia_id": "sr",
         "language": "Serbian",
         "scripts": [
-            "Latn"
+            "Latn",
+            "Cyrl"
         ],
         "sources": [
             "wiki",
             "bible",
             "mc4",
             "nllb"
+        ]
+    },
+    "hbs": {
+        "bcp_47_code": "sh",
+        "wikipedia_id": "sh",
+        "language": "Serbo-Croatian",
+        "scripts": [
+            "Latn"
+        ],
+        "sources": [
+            "wiki"
         ]
     },
     "jao": {

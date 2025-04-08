@@ -148,7 +148,7 @@ class ModelInitMixin:
         else:
             self.peft_config = None
 
-    def init_wandb(self, project: str, entity: str, config: Dict[str, Any]):
+    def init_wandb(self, project: str, entity: str, config: Dict[str, Any], name: str):
         """
         Initialize Weights & Biases for logging.
 
@@ -162,7 +162,7 @@ class ModelInitMixin:
             Training parameters (usually same as used for __init__).
         """
 
-        wandb.init(project=project, entity=entity, config=config, dir=None)
+        wandb.init(project=project, entity=entity, config=config, dir=None, name=name)
 
         self.wandb = True
 

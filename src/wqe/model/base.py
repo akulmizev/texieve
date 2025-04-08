@@ -60,7 +60,7 @@ class ModelFromConfig(ModelInitMixin):
         self._model = None
         self.tokenizer = None
         self.collator = None
-        self.metric_to_track = "loss"
+        # self.metric_to_track = "loss"
 
     @property
     def model(self):
@@ -224,9 +224,18 @@ class ModelFromConfig(ModelInitMixin):
         self._init_model_and_tokenizer(tokenizer, **kwargs)
         self._prepare_for_training()
         loaders = self._prepare_data(dataset)
-        running_metric = 0.0
+        running_loss = torch.inf
+        running_f1 = 0
+
+        if not self.num_train_steps:
+            try:
+                total_steps = len(loaders['train']) * self.num_train_epochs
+            except:
+                total_steps = None
+        else:
+            total_steps = self.num_train_steps
         progress_bar = tqdm(
-            total=self.num_train_steps if self.num_train_steps else None,
+            total=total_steps,
             position=0,
             leave=True,
         )
@@ -296,15 +305,26 @@ class ModelFromConfig(ModelInitMixin):
                             )
 
                             if self.checkpoint_path:
-                                if scores[self.metric_to_track] < running_metric:
-                                    logger.info(
-                                        f"Saving model checkpoint at epoch {epoch}."
-                                    )
-                                    self.accelerator.save_state(
-                                        self.checkpoint_path,
-                                        safe_serialization=False,
-                                    )
-                                    running_metric = scores[self.metric_to_track]
+                                try:
+                                    if scores["loss"] < running_loss:
+                                        logger.info(
+                                            f"Saving model checkpoint at epoch {epoch+1}."
+                                        )
+                                        self.accelerator.save_state(
+                                            self.checkpoint_path,
+                                            safe_serialization=False,
+                                        )
+                                        running_loss = scores["loss"]
+                                except KeyError:
+                                    if scores["f1"] > running_f1:
+                                        logger.info(
+                                            f"Saving model checkpoint at epoch {epoch+1}."
+                                        )
+                                        self.accelerator.save_state(
+                                            self.checkpoint_path,
+                                            safe_serialization=False,
+                                        )
+                                        running_loss = scores["f1"]
 
                             if self.wandb:
                                 wandb.log({"val": scores})
@@ -312,6 +332,55 @@ class ModelFromConfig(ModelInitMixin):
                             self._model.train()
 
                     global_step += 1
+                
+                #this part makes sure there is checkpointing after every epoch
+                if self.num_eval_steps == None:
+                    if eval_split not in loaders:
+                        logger.warning(
+                            f"No {eval_split} split found. Skipping evaluation."
+                        )
+                        if self.checkpoint_path:
+                            logger.info(
+                                f"Saving model checkpoint at epoch {epoch + 1}."
+                            )
+                            self.accelerator.save_state(
+                                self.checkpoint_path, safe_serialization=False
+                            )
+                    else:
+                        scores = self._eval_loop(loaders[eval_split])
+                        scores_str = " | ".join(
+                            [f"val. {k}: {v:.4f}" for k, v in scores.items()]
+                        )
+                        logger.info(
+                            f"Step {global_step+1} | Epoch {epoch+1} | {scores_str}"
+                        )
+
+                        if self.checkpoint_path:
+                            try:
+                                if scores["loss"] < running_loss:
+                                    logger.info(
+                                        f"Saving model checkpoint at epoch {epoch+1}."
+                                    )
+                                    self.accelerator.save_state(
+                                        self.checkpoint_path,
+                                        safe_serialization=False,
+                                    )
+                                    running_loss = scores["loss"]
+                            except KeyError:
+                                if scores["f1"] > running_f1:
+                                    logger.info(
+                                        f"Saving model checkpoint at epoch {epoch+1}."
+                                    )
+                                    self.accelerator.save_state(
+                                        self.checkpoint_path,
+                                        safe_serialization=False,
+                                    )
+                                    running_loss = scores["f1"]
+                                    
+                        if self.wandb:
+                            wandb.log({"val": scores})
+
+                        self._model.train()
 
                 if self.num_train_steps:
                     if global_step >= self.num_train_steps:
