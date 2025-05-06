@@ -231,6 +231,8 @@ class MLM(ModelFromConfig):
         raw_weights: Optional[Dict[str, float or int]] = None,
         **kwargs,
     ):
+        # TODO: Experimental, needs to be cleaned up
+
         if raw_weights is not None:
             if not all(lang_id in raw_weights.keys() for lang_id in datasets.keys()):
                 raise ValueError("Raw weights must cover all languages in the loader.")
