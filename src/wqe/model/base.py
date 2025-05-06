@@ -108,7 +108,7 @@ class ModelFromConfig(ModelInitMixin):
         """
 
         self.optimizer = AdamW(
-            self._model.parameters(), lr=float(self.lr), weight_decay=0.05
+            self._model.parameters(), lr=float(self.lr), weight_decay=self.weight_decay
         )
 
         self.scheduler = get_scheduler(

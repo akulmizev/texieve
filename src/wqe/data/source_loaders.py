@@ -62,3 +62,20 @@ def load_nllb(lang_id: str, scripts: List[str], streaming: bool) -> Dataset:
         return interleave_datasets(datasets, stopping_strategy="first_exhausted")
     else:
         return concatenate_datasets(datasets)
+
+def load_fineweb(lang_id: str, streaming: bool) -> Dataset:
+    with pkg_resources.open_text(resources, "fineweb_mappings.json") as file:
+        fineweb_subsets = json.load(file)
+    
+    dataset = load_dataset(
+        "HuggingFaceFW/fineweb-2",
+        fineweb_subsets[lang_id],
+        trust_remote_code=True,
+        streaming=streaming,
+    )
+    for split in dataset.keys():
+        dataset[split] = dataset[split].remove_columns(
+            [col for col in dataset[split].column_names if col != "text"]
+        )
+
+    return dataset

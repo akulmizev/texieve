@@ -25,7 +25,7 @@ from transformers import PreTrainedTokenizerFast
 
 from . import resources
 from .processing import PreFilter, Deduplicate, Threshold, Partition
-from .source_loaders import load_wiki, load_c4, load_bible, load_nllb
+from .source_loaders import load_wiki, load_c4, load_bible, load_nllb, load_fineweb
 from ..utils.config import Dataset as DatasetConfig
 from .utils import (
     add_column,
@@ -113,7 +113,7 @@ class BaseLoader:
         Whether the dataset is loaded in streaming mode.
     """
 
-    SUPPORTED_SOURCES = ["wiki", "mc4", "bible", "nllb"]
+    SUPPORTED_SOURCES = ["wiki", "mc4", "bible", "nllb", "fineweb"]
 
     def __init__(self, *args, **kwargs):
         """
@@ -877,6 +877,7 @@ class MonolingualLoader(BaseLoader):
         - "mc4": Common Crawl corpus from https://huggingface.co/datasets/allenai/c4.
         - "bible": Bible corpus from https://huggingface.co/datasets/davidstap/biblenlp-corpus-mmteb.
         - "nllb": NLLB-200 monolingual corpus from https://huggingface.co/datasets/allenai/nllb.
+        - "fineweb": FineWeb 2 corpus from https://huggingface.co/datasets/HuggingFaceFW/fineweb-2.
 
         Sources are all formatted differently, and therefore require different preprocessing measures.
 
@@ -884,7 +885,7 @@ class MonolingualLoader(BaseLoader):
         ----------
         source: str
             The source from which to load the dataset.
-            Supported sources are "wiki", "c4", "bible", and "nllb".
+            Supported sources are "wiki", "c4", "bible", "nllb" and "fineweb".
         streaming: bool
             Whether to load the dataset in streaming mode.
         dump_date: str
@@ -900,6 +901,7 @@ class MonolingualLoader(BaseLoader):
             "mc4": lambda: load_c4(self.lang.bcp_47, streaming),
             "bible": lambda: load_bible(self.lang.id, streaming),
             "nllb": lambda: load_nllb(self.lang.id, self.lang.scripts, streaming),
+            "fineweb": lambda: load_fineweb(self.lang.id, streaming),
         }
 
         if source not in source_loaders:
@@ -1042,11 +1044,13 @@ class MultilingualLoader(BaseLoader):
                 **kwargs,
             )
 
-            for split_name, split_dataset in loader.data.items():
-                column_names = get_column_names(split_dataset)
-                if "language" not in column_names:
-                    loader.data[split] = add_column(split_dataset, "language", lang_id)
-                combined_datasets[split_name].append(loader.data[split_name])
+            print(lang_id, loader)
+
+            # for split_name, split_dataset in loader.data.items():
+            #     column_names = get_column_names(split_dataset)
+            #     if "language" not in column_names:
+            #         loader.data[split] = add_column(split_dataset, "language", lang_id)
+            #     combined_datasets[split_name].append(loader.data[split_name])
 
         self.data = combine_datasets(combined_datasets, streaming=self.streaming)
 

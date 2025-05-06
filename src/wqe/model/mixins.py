@@ -76,6 +76,7 @@ class ModelInitMixin:
         max_length: Optional[int] = 128,
         batch_size: Optional[int] = 8,
         lr: Optional[float] = 1e-3,
+        weight_decay: Optional[float] = 0.05,
         padding_strategy: Optional[str] = "longest",
         mask_prob: Optional[float] = 0.15,
         grad_accumulation_steps: Optional[int] = 1,
@@ -94,6 +95,7 @@ class ModelInitMixin:
         self.max_length = max_length
         self.batch_size = batch_size
         self.lr = lr
+        self.weight_decay = weight_decay
         self.padding_strategy = padding_strategy
         self.mask_prob = mask_prob
         self.grad_accumulation_steps = grad_accumulation_steps

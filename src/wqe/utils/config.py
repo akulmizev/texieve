@@ -120,10 +120,11 @@ class TrainingParameters:
     model_type: str = "bert-base-uncased"
     task: str = "classification"
     num_train_epochs: int = 1
-    num_warmup_steps: int = (0,)
+    num_warmup_steps: int = 0
     max_length: int = 512
     batch_size: int = 8
     lr: float = 1e-3
+    weight_decay: float = 0.05
     padding_strategy: str = "max_length"
     grad_accumulation_steps: int = 1
     mixed_precision: str = "no"
