@@ -241,13 +241,9 @@ class Pretrain:
 @dataclass
 class Finetune:
     load_path: str
-    eval_language: str
-    dataset_path: Optional[str] = None
+    dataset_path: str
+    eval_language: Optional[str] = None
     dataset_config: Optional[str] = None
-    train_path: Optional[str] = None
-    valid_path: Optional[str] = None
-    test_path: Optional[str] = None
-    columns: Optional[list] = None
     export: bool = False
     push_to_hub: bool = False
     do_train: bool = False
@@ -255,6 +251,10 @@ class Finetune:
     checkpoint: Optional[bool] = False
 
     def __post_init__(self):
+        if self.eval_language is not None:
+            assert (
+                self.dataset_config is None
+            ), "Cannot set both eval_language and dataset_config."
         if self.training_parameters:
             self.training_parameters = TrainingParameters(**self.training_parameters)
 

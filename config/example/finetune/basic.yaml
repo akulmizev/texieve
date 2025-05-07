@@ -1,13 +1,14 @@
-load_path: "./experiments/my_experiment/ha/model"
-dataset_path: "masakhane/masakhapos" # train_path, validation_path, test_path
-columns: false # text column, label column
-# train_path, # valid_path, # test_path
+load_path: "bert-base-multilingual-cased"
+dataset_path: "masakhane/masakhaner2"
+eval_language: "yor"
+# dataset_config: "your-config"
+
 training_parameters:
-  model_type: "deberta"
-  task: "pos"
+  model_type: "bert"
+  task: "ner"
   max_length: 512
-  num_train_epochs: 30
-  batch_size: 32
+  num_train_epochs: 1
+  batch_size: 8
   lr: 5e-05 # do not change this for sentiment analysis
   padding_strategy: "max_length"
 

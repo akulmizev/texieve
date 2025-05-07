@@ -11,14 +11,13 @@ import tqdm
 
 from datasets import Dataset, DatasetDict
 from datasketch import MinHash, LeanMinHash, MinHashLSH
-from huggingface_hub import hf_hub_download
 from huggingface_hub.utils import insecure_hashlib
 from kneed import KneeLocator
 from numpy import ndarray
 from scipy.stats import gaussian_kde
 from transformers import PreTrainedTokenizerFast
 
-from .utils import c4_filter, compute_ngrams, tokenize, measure_deletion
+from ..utils.data import c4_filter, compute_ngrams, tokenize, measure_deletion
 from ..utils.maps import METRIC_MAP
 from ..utils.stats import normalize
 
@@ -52,9 +51,9 @@ class PreFilter:
             self.lang_id = True
             self.langs_to_keep = langs_to_keep
             # self.lang_id_model = fasttext.load_model(
-                # hf_hub_download(
-                    # repo_id="cis-lmu/glotlid", filename="model.bin", cache_dir=None
-                # )
+            # hf_hub_download(
+            # repo_id="cis-lmu/glotlid", filename="model.bin", cache_dir=None
+            # )
             # )
         else:
             self.langs_to_keep = None

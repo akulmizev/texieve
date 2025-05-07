@@ -27,13 +27,13 @@ from . import resources
 from .processing import PreFilter, Deduplicate, Threshold, Partition
 from .source_loaders import load_wiki, load_c4, load_bible, load_nllb, load_fineweb
 from ..utils.config import Dataset as DatasetConfig
-from .utils import (
+from ..utils.data import (
     add_column,
     combine_datasets,
     convert_iterable_dataset_to_regular,
     get_column_names,
-    get_sampling_probs,
 )
+from ..utils.stats import get_sampling_probs
 
 
 # Setup logging
@@ -623,23 +623,18 @@ class MonolingualLoader(BaseLoader):
 
         if load_path:
             # Try locally first
-            if load_path.endswith('.txt'):
-                local_path = load_path
-            else:
-                local_path = os.path.join(load_path, self.lang.id)
+            local_path = os.path.join(load_path, self.lang.id)
+
             if os.path.exists(local_path):
                 try:
-                    if local_path.endswith('.txt'):
-                        self.data = load_dataset('text', data_files={"train":local_path})
-                    else:
-                        self.data = load_from_disk(local_path)
-                        if self.streaming:
-                            self.data = IterableDatasetDict(
-                                {
-                                    split_name: split_dataset.to_iterable_dataset()
-                                    for split_name, split_dataset in self.data.items()
-                                }
-                            )
+                    self.data = load_from_disk(local_path)
+                    if self.streaming:
+                        self.data = IterableDatasetDict(
+                            {
+                                split_name: split_dataset.to_iterable_dataset()
+                                for split_name, split_dataset in self.data.items()
+                            }
+                        )
                     self.sources = [local_path]
                 except DatasetNotFoundError:
                     logger.error(

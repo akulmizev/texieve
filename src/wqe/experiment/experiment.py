@@ -8,19 +8,18 @@ from glob import glob
 import datasets
 import lm_eval
 
+from datasets import load_dataset, load_from_disk
+from datasets.exceptions import DatasetNotFoundError
 from transformers import AutoTokenizer, PreTrainedTokenizerFast
 
-from ..data.loader import MonolingualLoader, MultilingualLoader, LangID
+from ..data.loader import MonolingualLoader, MultilingualLoader
 from ..tokenization.base import HfTokenizerFromConfig
 from ..tokenization.spm import HfSentencePieceTokenizer
 from ..model.pretrain import MLM, CLM
 from ..model.finetune import Tagger, Classifier
 from ..utils.config import MainConfig
 from ..utils.tokenization import merge_tokenizers
-from ..utils.validation import (
-    validate_and_format_dataset,
-    validate_and_format_splits,
-)
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -326,54 +325,67 @@ class ExperimentRunner:
         """
 
         cfg = self.finetune
-        lang = LangID(cfg.eval_language)
+        dataset_id = cfg.dataset_path.split("/")[-1]
         task = cfg.training_parameters.task
-
-        if cfg.dataset_path:
-            if cfg.dataset_config:
-                finetune_dataset = validate_and_format_dataset(
-                    cfg.dataset_path, cfg.dataset_config, task, cfg.columns
-                )
-            else:
-                finetune_dataset = validate_and_format_dataset(
-                    cfg.dataset_path, self.lang.id, task, cfg.columns
-                )
+        if cfg.dataset_config:
+            dataset_config = cfg.dataset_config
+        elif cfg.eval_language:
+            dataset_config = cfg.eval_language
         else:
-            finetune_dataset = validate_and_format_splits(
-                cfg.train_path,
-                cfg.valid_path,
-                cfg.test_path,
-                lang,
-                task,
-                cfg.columns,
-            )
+            dataset_config = None
 
-        dataset_id = (
-            cfg.dataset_path.split("/")[-1]
-            if cfg.dataset_path
-            else cfg.valid_path.split("/")[-1]
+        local_dataset_path = (
+            os.path.join(cfg.dataset_path, dataset_config)
+            if dataset_config
+            else cfg.dataset_path
         )
-        checkpoint_path = (
-            f"{self.local_path}/checkpoints/{dataset_id}" if cfg.checkpoint else None
-        )
+        if os.path.exists(local_dataset_path):
+            try:
+                finetune_dataset = load_from_disk(local_dataset_path)
+            except DatasetNotFoundError:
+                logger.error(
+                    f"Dataset not found at local path: {local_dataset_path}. "
+                    f"Please specify a valid address or path."
+                )
+        # Back off to hub
+        else:
+            if cfg.dataset_config is not None:
+                finetune_dataset = load_dataset(cfg.dataset_path, cfg.dataset_config)
+            else:
+                finetune_dataset = load_dataset(cfg.dataset_path)
+
+        assert (
+            "train" in finetune_dataset.keys()
+        ), "Dataset must contain a `train` split for fine-tuning."
+
+        checkpoint_path = None
+        scores_file = None
+
         if self.local_path:
             scores_file = f"{self.local_path}/{self.experiment.experiment_id}.{dataset_id}.scores.txt"
-        else:
-            scores_file = None
+            if cfg.checkpoint:
+                checkpoint_path = f"{self.local_path}/checkpoints/{dataset_id}"
 
         if task in ["ner", "pos"]:
-            label_set = set(finetune_dataset['train']['tags'])
+            assert (
+                "tags" in finetune_dataset["train"].features
+            ), "Dataset must contain a `tags` column for NER/POS tasks."
+            # Ugly!!!
+            label_set = set(finetune_dataset["train"].features["tags"].feature.names)
             model = Tagger(
                 cfg.load_path, cfg.training_parameters, checkpoint_path=checkpoint_path
             )
         elif task in ["classification", "nli"]:
-            label_set = set(finetune_dataset['train']['labels'])
+            assert (
+                "labels" in finetune_dataset["train"].features
+            ), "Dataset must contain a `labels` column for classification tasks."
+            label_set = set(finetune_dataset["train"].features["labels"].names)
             model = Classifier(
                 cfg.load_path, cfg.training_parameters, checkpoint_path=checkpoint_path
             )
         else:
             raise ValueError(
-                "Invalid task. Please specify either `ner`, `pos`, or `classification`."
+                "Invalid task. Please specify either `ner`, `pos`, `classification`, or `nli`"
             )
 
         if self.experiment.wandb_entity:
