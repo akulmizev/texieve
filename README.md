@@ -1,17 +1,18 @@
-# Wikipedia Quality Estimation
+# texieve
 
-wqe (Wikipedia Quality Estimation) is a simple toolkit for working with
-Wikipedia data in Python. It allows for loading and processing of Wikipedia
-articles across all supported languages, as well as selecting high quality
-data for training and evaluation of machine learning models.
+`texieve` (a _text sieve_) is a simple toolkit for working with
+multilingual corpora in Python. It allows for loading and processing of datasets
+across many supported languages, as well as selecting high quality data
+samples for training and evaluation of NLP models. It is built on top the `huggingface`
+software stack, and is designed to be easily integrated into existing NLP pipelines.
 
 ## Installation
 
 To install the package, simply run:
 
 ```
-git clone https://github.com/akulmizev/Wikipedia_Quality_Estimation
-cd Wikipedia_Quality_Estimation
+git clone https://github.com/akulmizev/texieve
+cd texieve
 pip install .
 ```
 
@@ -26,7 +27,7 @@ pip install -e .
 ### Load and process datasets for Hausa
 
 ```python
-from wqe import MonolingualLoader, GOPHER_THRESHOLDS
+from texieve import MonolingualLoader, GOPHER_THRESHOLDS
 
 # Load the Hausa wiki, bible, and mc4 data
 hausa_loader = MonolingualLoader('hau')
@@ -49,7 +50,7 @@ hausa_loader.apply_threshold(GOPHER_THRESHOLDS)
 # Partition documents according to the longest articles
 hausa_loader.apply_partition(
     split_method="balanced_chars",
-    metric="length_chars",
+    metrics="length_chars",
     quality=True
 )
 ```
@@ -60,27 +61,26 @@ articles according to the longest articles.
 
 The output should look like this (note that partitioning by `balanced_chars` will split the data in half):
 ```
-INFO:wqe.data.loader:Loaded 292467 articles with 654755772 characters (train). Language: Hausa (hau). Sources: wiki, bible, mc4.
-INFO:wqe.data.processing:Filtering documents for accepted scripts: Latn, Brai, Arab
-Pre-filtering dataset. (num_proc=8): 100%|██████████| 292467/292467 [01:10<00:00, 4141.14 examples/s]
-Removing empty documents. (num_proc=8): 100%|██████████| 292467/292467 [00:01<00:00, 216677.71 examples/s]
-INFO:wqe.data.utils:Deleted: 1 docs (0.00%), 6336295 chars (0.97%), 10.59 MB (1.65%)
-INFO:wqe.data.processing:Deduplicating dataset.
-WARNING:wqe.data.processing:No tokenizer specified. Splitting on whitespace for minhash.
-Flattening the indices: 100%|██████████| 292466/292466 [00:05<00:00, 54424.27 examples/s]
-Calculating hashes. (num_proc=8): 100%|██████████| 292466/292466 [03:49<00:00, 1274.98 examples/s]
-Querying hashing indices for duplicates.: 100%|██████████| 292466/292466 [01:14<00:00, 3913.98it/s]
-Removing duplicates. (num_proc=8): 100%|██████████| 292466/292466 [00:24<00:00, 12122.68 examples/s]
-INFO:wqe.data.utils:Deleted: 7528 docs (2.57%), 10356948 chars (1.60%), 10.02 MB (1.59%)
-INFO:wqe.data.processing:Thresholding dataset by length_words, doc_mean_word_length, frac_lines_end_ellipsis, frac_symbol_to_words, frac_no_script_words...
-Calculating metrics. (num_proc=8): 100%|██████████| 284938/284938 [00:51<00:00, 5522.67 examples/s]
-Applying thresholds (num_proc=8): 100%|██████████| 284938/284938 [00:14<00:00, 19599.43 examples/s]
-INFO:wqe.data.utils:Deleted: 123623 docs (43.39%), 176360514 chars (27.64%), 175.01 MB (28.22%)
-INFO:wqe.data.loader:Concatenating train and test for partitioning...
-INFO:wqe.data.processing:Partition splitting method set to 'balanced_chars'.
-INFO:wqe.data.processing:Partitioning dataset by length_chars...
-Calculating metrics. (num_proc=8): 100%|██████████| 161760/161760 [00:09<00:00, 17739.88 examples/s]
-INFO:wqe.data.utils:Deleted: 136424 docs (84.34%), 230875958 chars (50.00%), 221.71 MB (49.80%)
+INFO:texieve.data.loader:Loaded dataset for language: Hausa. Sources: wiki, bible, mc4.
+INFO:texieve.data.processing:Filtering documents for accepted scripts: Latn
+Pre-filtering dataset. (num_proc=28): 100%|██████████| 292467/292467 [00:17<00:00, 16801.64 examples/s]
+Removing empty documents. (num_proc=28): 100%|██████████| 292467/292467 [00:01<00:00, 271234.09 examples/s]
+INFO:texieve.utils.data:Deleted: 1 docs (0.00%), 8385372 chars (1.28%), 14.22 MB (2.22%)
+INFO:texieve.data.processing:Deduplicating dataset.
+WARNING:texieve.data.processing:No tokenizer specified. Splitting on whitespace for minhash.
+Flattening the indices: 100%|██████████| 292466/292466 [00:02<00:00, 129638.68 examples/s]
+Calculating hashes. (num_proc=28): 100%|██████████| 292466/292466 [00:42<00:00, 6836.36 examples/s]
+Querying hashing indices for duplicates.: 100%|██████████| 292466/292466 [01:05<00:00, 4482.55it/s]
+Removing duplicates. (num_proc=28): 100%|██████████| 292466/292466 [00:09<00:00, 31165.43 examples/s]
+INFO:texieve.utils.data:Deleted: 7582 docs (2.59%), 10734676 chars (1.66%), 10.39 MB (1.66%)
+INFO:texieve.data.processing:Thresholding dataset by length_words, doc_mean_word_length, frac_lines_end_ellipsis, frac_symbol_to_words, frac_no_script_words...
+Calculating metrics. (num_proc=28): 100%|██████████| 284884/284884 [00:05<00:00, 54018.39 examples/s]
+Applying thresholds (num_proc=28): 100%|██████████| 284884/284884 [00:05<00:00, 50557.95 examples/s]
+INFO:texieve.utils.data:Deleted: 123615 docs (43.39%), 175690697 chars (27.64%), 173.97 MB (28.23%)
+INFO:texieve.data.processing:Partition splitting method set to 'balanced_chars'.
+INFO:texieve.data.processing:Partitioning dataset by length_chars...
+Calculating metrics. (num_proc=28): 100%|██████████| 161269/161269 [00:02<00:00, 56948.07 examples/s]
+INFO:texieve.utils.data:Deleted: 135777 docs (84.19%), 229970713 chars (50.00%), 220.74 MB (49.92%)
 ```
 
 Currently supported quality signals can be found in [./docs/metrics.md](./docs/metrics.md).
@@ -88,7 +88,7 @@ Currently supported quality signals can be found in [./docs/metrics.md](./docs/m
 To see which languages are supported, call:
 
 ```python
-from wqe import MonolingualLoader
+from texieve import MonolingualLoader
 
 MonolingualLoader.show_available_languages()
 ```
@@ -109,21 +109,21 @@ zyp            Zyphe Chin                    zyp       Latn                     
 aom            Ömie                          aom       Latn                          bible
 ```
 
-For details about the Python usage, see `./docs`.
+For details about the Python usage, see [./docs](./docs).
 
 ## Command Line Interface
 
-wqe also provides a `hydra`-powered command line interface (CLI) for working with Wikipedia data.
+texieve also provides a `hydra`-powered command line interface (CLI) for working with multilingual corpora.
 To load, process, and partition the Hausa Wikipedia, run:
 
 ```commandline
-wqe --config-dir ./config/example +experiment=basic +dataset=basic
+texieve --config-dir ./config/example +experiment=basic +dataset=basic
 ```
 
 This assumes a directory structure like the following:
 
 ```
-config/wqe
+config/texieve
 ├── dataset
 │   └── basic.yaml
 ├── experiment
@@ -139,7 +139,7 @@ config/wqe
 ... where `basic.yaml` is a configuration file for the respective task to be run, e.g.:
 
 ```yaml
-# config/wqe/dataset/basic.yaml
+# config/texieve/dataset/basic.yaml
 
 pre_filter:
   script_regex: false
@@ -163,14 +163,14 @@ push_to_hub: true
 Note: `basic.yaml` is a template file that can be copied and modified for different experiments. For example, to call a custom dataset config `custom.yaml`, run:
 
 ```commandline
-wqe --config-dir ./config/example +experiment=basic +dataset=custom
+texieve --config-dir ./config/example +experiment=basic +dataset=custom
 ```
 
 The CLI assumes by default that the `experiment` config is provided, which contains
 high-level settings for the experiment, e.g.:
 
 ```yaml
-# config/wqe/experiment/basic.yaml
+# config/texieve/experiment/basic.yaml
 
 experiment_id: "my_experiment"
 wandb_entity: "wikiquality" #optional
@@ -183,14 +183,14 @@ a wiki dataset, train a tokenizer on it, and pass the components to `transformer
 for further language model pre-training and/or fine-tuning:
 
 ```commandline
-wqe --config-dir ./config/wqe +experiment=basic +dataset=basic +tokenizer=basic +pretrain=basic +finetune=basic
+texieve --config-dir ./config/texieve +experiment=basic +dataset=basic +tokenizer=basic +pretrain=basic +finetune=basic
 ```
 
 To avoid generating separate config files for slight variations of an experiment,
 it is likewise possible to pass overriding arguments directly to the CLI, e.g.:
 
 ```commandline
-wqe --config-dir ./config/wqe \
+texieve --config-dir ./config/texieve \
 +experiment=basic experiment.wiki_id="zu" \
 +dataset=basic dataset.partition.metric="unique_trigrams" \
 +tokenizer=basic tokenizer.vocab_size=10000 \
@@ -198,8 +198,8 @@ wqe --config-dir ./config/wqe \
 +finetune=basic
 ```
 
-All arguments are type-checked in `wqe.utils.config` and processed via
-`wqe.experiment.experiment.ExperimentRunner`. For more details, see `./docs`.
+All arguments are type-checked in `texieve.utils.config` and processed via
+`texieve.experiment.experiment.ExperimentRunner`. For more details, see `./docs`.
 
 ## License
 

@@ -33,7 +33,7 @@ class ModelFromConfig(ModelInitMixin):
         e.g. "bert-base-uncased" or "path/to/model".
     config : TrainingParameters
         Configuration for the training parameters.
-        See `wqe.utils.config.TrainingParameters` for details.
+        See `texieve.utils.config.TrainingParameters` for details.
     checkpoint_path : Union[str, None], optional
         Path to save the model checkpoint during training (default is None).
 
@@ -210,7 +210,7 @@ class ModelFromConfig(ModelInitMixin):
         ----------
         dataset : DatasetDict
             The dataset to use for training and evaluation.
-            Can be a wqe.data.loader.MonolingualLoader instance.
+            Can be a texieve.data.loader.MonolingualLoader instance.
         tokenizer : PreTrainedTokenizerFast or HfTokenizerFromConfig, optional
             The tokenization to use for the model.
             Should only be provided if training from scratch with a config.

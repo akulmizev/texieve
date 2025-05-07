@@ -1,7 +1,9 @@
+from pydoc import source_synopsis
+
 ### Train a masked language model on wiki data:
 
 ```python
-from wqe import (
+from texieve import (
     MonolingualLoader,
     HfTokenizerFromConfig,
     TrainingParameters,
@@ -9,7 +11,7 @@ from wqe import (
 )
 
 # Load Wikipedia data
-wiki = MonolingualLoader("ha").load_dataset()
+hausa_wiki = MonolingualLoader("hau").load_dataset(sources=["wiki"], streaming=True)
 
 # Load Tokenizer
 tokenizer = HfTokenizerFromConfig.from_pretrained("./models/unigram_tokenizer")
@@ -47,7 +49,7 @@ setting `task="clm"` and passing a `TrainingParameters` object with the desired
 configuration, e.g.:
 
 ```python
-from wqe import CLM
+from texieve import CLM
 
 # Initialize the model
 params = params.model="gpt_neo"

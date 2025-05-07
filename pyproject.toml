@@ -3,18 +3,18 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "wqe"
-version = "2024.06.10"
+name = "texieve"
+version = "2025.05.07"
 requires-python = ">=3.10"
 authors = [
-    {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
+    {name = "Artur Kulmizev", email = "akulmizev@gmail.com"},
     {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
 ]
 maintainers = [
     {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
     {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
 ]
-description = "A package for loading and filtering Wikipedia data."
+description = "A simple toolkit for working with multilingual corpora in Python. "
 readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = [
@@ -29,20 +29,23 @@ dependencies = [
     "accelerate",
     "peft",
     "bitsandbytes",
-    "fasttext",
-    "nltk",
     "evaluate",
-    "sentencepiece",
+    "wandb",
+    "datasketch"
+]
+
+[project.optional-dependencies]
+dev = [
+    "kneed",
+    "submitit",
     "scikit-learn",
     "seqeval",
-    "wandb",
-    "datasketch",
-    "submitit",
-    "kneed"
+    "sentencepiece",
+    "fasttext"
 ]
 
 [project.scripts]
-wqe = "wqe.cli.cli:run_experiment"
+texieve = "texieve.cli.cli:run_experiment"
 
 [project.urls]
 "Homepage" = "https://github.com/akulmizev/Wikipedia_Quality_Estimation"

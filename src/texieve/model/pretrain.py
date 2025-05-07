@@ -48,7 +48,7 @@ class MLM(ModelFromConfig):
         TODO: Make this check more robust.
     config : TrainingParameters
         Configuration object for training parameters.
-        See `wqe.utils.config.TrainingParameters` for more details.
+        See `texieve.utils.config.TrainingParameters` for more details.
     checkpoint_path : str, optional
         Path to save model checkpoints during training (default is None).
 
@@ -394,7 +394,7 @@ class CLM(MLM):
         If the path ends with ".json", the model will be initialized from a local config file.
     config : TrainingParameters
         Configuration object for training parameters.
-        See `wqe.utils.config.TrainingParameters` for more details.
+        See `texieve.utils.config.TrainingParameters` for more details.
 
     Methods
     -------

@@ -342,11 +342,11 @@ class BaseLoader:
         """
         Filters the dataset based on the specified thresholds for each metric.
         If a metric is not specified in the thresholds, no threshold is applied.
-        All implemented metrics can be found in the `wqe.data.metrics` module.
+        All implemented metrics can be found in the `texieve.data.metrics` module.
 
         Thresholds can also be estimated automatically from the metric distribution
         by specifying 'auto'. Implementation can be found in
-        `wqe.data.processing.Threshold._get_auto_threshold()`.
+        `texieve.data.processing.Threshold._get_auto_threshold()`.
 
         Parameters
         ----------
@@ -791,7 +791,7 @@ class MonolingualLoader(BaseLoader):
         The filters can be applied simultaneously...
 
         ```
-        from wqe import MonolingualLoader
+        from texieve import MonolingualLoader
         loader = MonolingualLoader("ha")
         loader.pre_filter(
             script_regex=True,
@@ -803,7 +803,7 @@ class MonolingualLoader(BaseLoader):
         ...or successively:
 
         ```
-        from wqe import MonolingualLoader
+        from texieve import MonolingualLoader
         loader = MonolingualLoader("ha")
         loader.pre_filter(script_regex=True)
         loader.pre_filter(lang_id=True)

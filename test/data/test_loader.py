@@ -7,8 +7,8 @@ from datasets import (
     IterableDatasetDict,
 )
 
-from wqe import LangID, MonolingualLoader, MultilingualLoader
-from wqe.utils.config import Dataset as DatasetConfig
+from texieve import LangID, MonolingualLoader, MultilingualLoader
+from texieve.utils.config import Dataset as DatasetConfig
 
 
 mono_data = {
@@ -330,7 +330,7 @@ class TestMonolingualLoader:
     )
     def test_from_config(self, config_params, mocker):
         mock_load_dataset = mocker.patch(
-            "wqe.data.loader.MonolingualLoader._load_source"
+            "texieve.data.loader.MonolingualLoader._load_source"
         )
         dataset = (
             Dataset.from_dict(mono_data)
@@ -685,7 +685,7 @@ class TestMultilingualLoader:
     def test_from_config(self, config_params, mocker):
         # Mock the load_dataset method
         mock_load_dataset = mocker.patch(
-            "wqe.data.loader.MonolingualLoader._load_source"
+            "texieve.data.loader.MonolingualLoader._load_source"
         )
         dataset = (
             Dataset.from_dict(multi_data)

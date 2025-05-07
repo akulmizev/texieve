@@ -1,10 +1,10 @@
 ### Train a tokenizer on wiki data:
 
 ```python
-from wqe import MonolingualLoader, TokenizerConfig, HfTokenizerFromConfig
+from texieve import MonolingualLoader, TokenizerConfig, HfTokenizerFromConfig
 
 # Load Wikipedia data
-wiki = MonolingualLoader("ha").load_dataset()
+wiki = MonolingualLoader("hau").load_dataset(sources=["wiki"], streaming=True)
 
 # Create a tokenization configuration
 tokenizer_config = TokenizerConfig(
@@ -30,3 +30,16 @@ This will train a (fast) UnigramLM tokenizer with full compatibility with
 the popular `PreTrainedTokenizerFast` class from `transformers`. Note: it is
 possible to set the `vocab_size` to `auto` to automatically determine the
 optimal vocabulary size based on the data (via Heap's Law and additional heuristics).
+
+It is also possible to train a huggingface-compatible tokenizer using a `sentencepiece` backend, like so:
+
+```python
+from texieve import HfSentencepieceTokenizer
+
+tokenizer_config = TokenizerConfig(
+    model={"type": "unigram"}, 
+    vocab_size="auto"
+)
+
+tokenizer = HfSentencepieceTokenizer.train_from_config(wiki, tokenizer_config)
+```
