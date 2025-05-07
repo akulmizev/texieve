@@ -22,6 +22,12 @@ If you would like to install the package in development mode, run:
 pip install -e .
 ```
 
+...and if you'd like to make use of some additional functionality, you can do:
+
+```
+pip install -e .[dev]
+```
+
 ## Example Usage in Python
 
 ### Load and process datasets for Hausa
