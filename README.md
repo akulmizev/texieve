@@ -1,3 +1,5 @@
+from pydoc import source_synopsis
+
 # texieve
 
 `texieve` (a _text sieve_) is a simple toolkit for working with
@@ -28,7 +30,7 @@ pip install -e .
 pip install -e .[dev]
 ```
 
-## Example Usage in Python
+## Example usage in Python
 
 ### Load and process datasets for Hausa
 
@@ -63,7 +65,7 @@ hausa_loader.apply_partition(
 This will load available Hausa data (from Wikipedia, MC4, and the bible) from
 the huggingface `datasets` hub, filter out not-official scripts,
 deduplicate the articles, apply GOPHER thresholds, and partition the
-articles according to the longest articles.
+articles according to the longest articles. 
 
 The output should look like this (note that partitioning by `balanced_chars` will split the data in half):
 ```
@@ -91,6 +93,31 @@ INFO:texieve.utils.data:Deleted: 135777 docs (84.19%), 229970713 chars (50.00%),
 
 Currently supported quality signals can be found in [./docs/metrics.md](./docs/metrics.md).
 
+### Load data for multiple languages
+
+```python
+from texieve import MonolingualLoader, MultilingualLoader
+
+# Load the Hausa and Swahili wiki, bible, and mc4 data directly
+
+multi_loader = MultilingualLoader(["hau", "swa"])
+multi_loader.load(sources=["wiki", "bible", "mc4"])
+
+# Load data from multiple `MonolingualLoader` instances
+
+hau_loader = MonolingualLoader("hau").load(sources=["wiki", "bible", "mc4"])
+swa_loader = MonolingualLoader("swa").load(sources=["wiki", "bible", "mc4"])
+multi_loader = MultilingualLoader.from_loaders([hau_loader, swa_loader])
+
+# Add loaders and delete loaders incrementally
+yor_loader = MonolingualLoader("yor").load(sources=["wiki", "bible", "mc4"])
+multi_loader.add_loader(yor_loader)
+multi_loader.delete_loader("hau")
+
+# Filter out non-official scripts for all languages at once
+multi_loader.pre_filter(script_regex=True)
+```
+
 To see which languages are supported, call:
 
 ```python
@@ -115,11 +142,25 @@ zyp            Zyphe Chin                    zyp       Latn                     
 aom            Ömie                          aom       Latn                          bible
 ```
 
-For details about the Python usage, see [./docs](./docs).
+### Integration with `datasets`
+
+Both `MonolingualLoader` and `MultilingualLoader` are wrapped around the `DatasetDict` class from
+`datasets`, and support all of its methods. For example, to get the number of documents in the
+dataset, you can do:
+
+```python
+from texieve import MonolingualLoader
+hau_loader = MonolingualLoader("hau").load(sources=["wiki", "bible", "mc4"])
+print(hau_loader.dataset["train"].num_rows)
+print(hau_loader.dataset["test"].features)
+```
+
+For additional details about Python usage (including dataset streaming, tokenization and model training), 
+see [./docs](./docs).
 
 ## Command Line Interface
 
-texieve also provides a `hydra`-powered command line interface (CLI) for working with multilingual corpora.
+`texieve` also provides a `hydra`-powered command line interface (CLI) for working with multilingual corpora.
 To load, process, and partition the Hausa Wikipedia, run:
 
 ```commandline

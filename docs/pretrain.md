@@ -28,7 +28,7 @@ params = TrainingParameters(
     padding_strategy="max_length"
 )
 
-# Initialize the model
+# Initialize the model, using a custom config
 deberta_model = MLM(
     load_path="./config/model/tiny_deberta/config.json",
     config=params
