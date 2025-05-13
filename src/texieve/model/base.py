@@ -324,7 +324,7 @@ class ModelFromConfig(ModelInitMixin):
                                             self.checkpoint_path,
                                             safe_serialization=False,
                                         )
-                                        running_loss = scores["f1"]
+                                        running_f1 = scores["f1"]
 
                             if self.wandb:
                                 wandb.log({"val": scores})
@@ -375,7 +375,7 @@ class ModelFromConfig(ModelInitMixin):
                                         self.checkpoint_path,
                                         safe_serialization=False,
                                     )
-                                    running_loss = scores["f1"]
+                                    running_f1 = scores["f1"]
                                     
                         if self.wandb:
                             wandb.log({"val": scores})
