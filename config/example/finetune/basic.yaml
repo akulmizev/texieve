@@ -1,0 +1,17 @@
+load_path: "bert-base-multilingual-cased"
+dataset_path: "masakhane/masakhaner2"
+eval_language: "yor"
+# dataset_config: "your-config"
+
+training_parameters:
+  model_type: "bert"
+  task: "ner"
+  max_length: 512
+  num_train_epochs: 1
+  batch_size: 8
+  lr: 5e-05 # do not change this for sentiment analysis
+  padding_strategy: "max_length"
+
+export: false
+push_to_hub: false
+checkpoint: true

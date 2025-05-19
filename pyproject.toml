@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "texieve"
+version = "2025.05.07"
+requires-python = ">=3.10"
+authors = [
+    {name = "Artur Kulmizev", email = "akulmizev@gmail.com"},
+    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+]
+maintainers = [
+    {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
+    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+]
+description = "A simple toolkit for working with multilingual corpora in Python. "
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent"]
+dependencies = [
+    "lm_eval@git+https://github.com/EleutherAI/lm-evaluation-harness",
+    "hydra-core",
+    "datasets",
+    "tokenizers",
+    "transformers",
+    "accelerate",
+    "peft",
+    "bitsandbytes",
+    "evaluate",
+    "wandb",
+    "datasketch"
+]
+
+[project.optional-dependencies]
+dev = [
+    "kneed",
+    "submitit",
+    "scikit-learn",
+    "seqeval",
+    "sentencepiece",
+    "fasttext"
+]
+
+[project.scripts]
+texieve = "texieve.cli.cli:run_experiment"
+
+[project.urls]
+"Homepage" = "https://github.com/akulmizev/Wikipedia_Quality_Estimation"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+"wqe.data" = ["resources/wiki_mappings.json"]

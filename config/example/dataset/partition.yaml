@@ -1,0 +1,21 @@
+languages:
+  - "your-language"
+
+# load_path: "your-load-path"
+
+# sources: # wiki, bible, mc4, nllb supported
+#   - "your-source"
+
+partition:
+  method: "elbow"
+  metrics: "length"
+  join_method: "scores"
+  quality: true
+
+split:
+  test_size: 0.1
+  seed: 42
+  shuffle: true
+
+export: true
+push_to_hub: true

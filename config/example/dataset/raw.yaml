@@ -1,0 +1,15 @@
+languages:
+  - "your-language"
+
+# load_path: "your-load-path"
+
+# sources: # wiki, bible, mc4, nllb supported
+#   - "your-source"
+
+split:
+  test_size: 0.05
+  seed: 42
+  shuffle: true
+
+export: true
+push_to_hub: true

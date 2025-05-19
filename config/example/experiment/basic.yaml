@@ -1,0 +1,4 @@
+experiment_id: "your-experiment"
+#wandb_entity: "your-wandb-entity"
+local_path: "./your-path"
+# hub_path: "your-hf-hub-path"
