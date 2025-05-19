@@ -1,5 +1,3 @@
-from pydoc import source_synopsis
-
 # texieve
 
 `texieve` (a _text sieve_) is a simple toolkit for working with
