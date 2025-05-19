@@ -1,6 +1,6 @@
 # Multilingual BERT (mBERT) Training
 
-This example demonstrates how to train a multilingual BERT model using the `texieve` library. 
+This example demonstrates how to train a multilingual BERT model using the `texieve` package. 
 The training process involves loading Wikipedia data for multiple languages, configuring the tokenizer, 
 and training a masked language model (MLM) with the parameters specified in the BERT paper.
 
