@@ -97,12 +97,10 @@ Currently supported quality signals can be found in [./docs/metrics.md](./docs/m
 from texieve import MonolingualLoader, MultilingualLoader
 
 # Load the Hausa and Swahili wiki, bible, and mc4 data directly
-
 multi_loader = MultilingualLoader(["hau", "swa"])
 multi_loader.load(sources=["wiki", "bible", "mc4"])
 
 # Load data from multiple `MonolingualLoader` instances
-
 hau_loader = MonolingualLoader("hau").load(sources=["wiki", "bible", "mc4"])
 swa_loader = MonolingualLoader("swa").load(sources=["wiki", "bible", "mc4"])
 multi_loader = MultilingualLoader.from_loaders([hau_loader, swa_loader])
