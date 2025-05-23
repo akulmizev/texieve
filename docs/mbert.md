@@ -4,11 +4,6 @@ This example demonstrates how to train a multilingual BERT model using the `texi
 The training process involves loading Wikipedia data for multiple languages, configuring the tokenizer, 
 and training a masked language model (MLM) with the parameters specified in the BERT paper.
 
-This script can be called via `accelerate` for distributed training like so:
-```bash
-accelerate launch --num_processes=4 --mixed_precision=bf16 train_mbert.py
-```
-
 ```python
 # train_mbert.py
 from texieve import (
@@ -98,4 +93,9 @@ model.train(data, tokenizer=tokenizer, eval_split='test')
 
 # Save the model
 model.save(checkpoint_path)
+```
+
+This script can be called via `accelerate` for distributed training like so:
+```bash
+accelerate launch --num_processes=4 --mixed_precision=bf16 train_mbert.py
 ```
