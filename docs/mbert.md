@@ -33,7 +33,6 @@ data = MultilingualLoader(language_codes)
 # and load them in streaming mode
 data.load(load_path='experiments/mbert_filtered_1', streaming=True)
 data.apply_language_sampling(sampling_strategy='temperature', temperature=1.43)
-data.save('../experiments/mbert')
 
 # Specify BERT tokenizer parameters
 tokenizer_config = TokenizerConfig(
