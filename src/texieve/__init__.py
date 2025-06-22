@@ -5,7 +5,7 @@ from .tokenization.base import HfTokenizerFromConfig
 from .tokenization.spm import HfSentencePieceTokenizerBase, HfSentencePieceTokenizer
 from .utils.config import TokenizerConfig, TrainingParameters
 from .model.pretrain import MLM, CLM
-from .model.finetune import Tagger, Classifier
+from .model.finetune import Tagger, Classifier, BiaffineParser
 
 __all__ = [
     "MonolingualLoader",
@@ -25,4 +25,5 @@ __all__ = [
     "CLM",
     "Tagger",
     "Classifier",
+    "BiaffineParser",
 ]
