@@ -46,7 +46,17 @@ Currently supported tasks are:
 - `nli`: natural language inference with `Classifier`
 - `pos`: part-of-speech tagging with `Tagger`
 - `ner`: named entity recognition with `Tagger`
+- `ud` : dependency parsing with `BiaffineParser`
 
 Note that both `Classifier` and `Tagger` expect the label fields to be `labels` and `tags`, respectively. 
 In the case that a dataset does not use these fields, you can rename them using the `rename_columns` 
 method from the `datasets` library. 
+
+Since the finetuning pipeline is designed to work with the `datasets` library, we have provided a script to convet UD datasets from `.conllu` files to a `DatasetDict` in `src/utils/read_conll.py`. Example usage:
+```python
+# import the function 
+from utils.read_conll import conllu_to_datasets
+
+# this returns a DatasetDict object with train, validation and test splits that can be directly passed to BiaffineParser.train()
+ud_dataset = conllu_to_datasets(<path-to-ud-folder>) 
+```

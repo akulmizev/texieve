@@ -518,17 +518,44 @@ class Classifier(ModelFromConfig):
         }
         
 class BiaffineParser(ModelFromConfig):
+    """
+    Class for dependency parsing using biaffine attention mechanism.
+    Parameters
+    ----------
+    load_path : str
+        Path to load the model from (either a local path or a Hugging Face Hub path).
+    config : TrainingParameters
+        Configuration object for training parameters.
+    **kwargs
+        Additional keyword arguments for the parent class.
+        
+    Attributes
+    ----------
+    label_set : List[str]
+        List of labels for the task.
     
+    Methods
+    -------
+    _init_model_and_tokenizer(tokenizer=None, label_set=None)
+        Initializes the model and tokenization for dependency parsing.
+    _align_labels(example)
+        Aligns the arc_labels and rel_labels labels with the tokenized input.
+    _tokenize_and_collate(dataset)
+        Tokenizes and collates a dataset into a PyTorch DataLoader.
+    _compute_metrics(arc_preds, rel_preds, arc_labels, rel_labels)
+        Computes the evaluation metrics (las and uas) for the dependency parsing task.
+    _eval_loop(loader)
+        Performs an evaluation loop on the given DataLoader and returns the evaluation scores.
+    """
     def __init__(self, load_path: str, config: TrainingParameters, **kwargs):
         super().__init__(load_path, config, **kwargs)
 
         self.model_type = config.model_type
-        # self.label_set = UD_HEAD_LABELS
                 
     def _init_model_and_tokenizer(
         self,
         tokenizer: Union[PreTrainedTokenizerFast, HfTokenizerFromConfig] = None,
-        label_set: set = UD_HEAD_LABELS,
+        label_set: set = set(UD_HEAD_LABELS),
     ):
         """
         Initialize the model and tokenization for biaffine parsing.
@@ -595,6 +622,20 @@ class BiaffineParser(ModelFromConfig):
         )
     
     def _align_labels(self, example):
+        """ 
+        Aligns the arc_labels and rel_labels labels with the tokenized input.
+        Have to ignore special tokens and common prefixes/suffixes.
+        
+        Parameters
+        ----------
+        example : dict
+            A single example from the dataset.
+            
+        Returns
+        -------
+        dict
+            The tokenized input with aligned arc_labels, rel_labels, and word_starts.
+        """
         
         TO_IGNORE = ["Ġ", "▁", "##", "Ċ"] + list(
             self.tokenizer.special_tokens_map.values()
@@ -641,6 +682,20 @@ class BiaffineParser(ModelFromConfig):
         return tokenized_input
     
     def _tokenize_and_collate(self, dataset):
+        """ 
+        Tokenizes and collates a dataset into a PyTorch DataLoader.
+        Assumes `tokens`, `head`, and `deprel` are features in the dataset. 
+        
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to be tokenized and collated.
+        
+        Returns
+        -------
+        DataLoader
+            A PyTorch DataLoader containing the tokenized and collated dataset.
+        """
         
         batched_dataset = dataset.map(
             self._align_labels, remove_columns=dataset.column_names
@@ -656,7 +711,25 @@ class BiaffineParser(ModelFromConfig):
         return loader
     
     def _compute_metrics(self, arc_preds, rel_preds, arc_labels, rel_labels):
+        """
+        Computes the evaluation metrics (las and uas) for the dependency parsing task.
         
+        Parameters
+        ----------
+        arc_preds : List[int]
+            List of predicted arc labels.
+        rel_preds : List[int]
+            List of predicted relation labels.
+        arc_labels : List[int]
+            List of true arc labels.
+        rel_labels : List[int]
+            List of true relation labels.
+            
+        Returns
+        -------
+        dict
+            A dictionary containing the evaluation scores (uas and las).
+        """
         correct_arcs = np.equal(arc_preds, arc_labels)
         correct_rels = np.equal(rel_preds, rel_labels)
         correct_arcs_and_rels = correct_arcs * correct_rels
@@ -674,6 +747,19 @@ class BiaffineParser(ModelFromConfig):
         }
     
     def _eval_loop(self, loader):
+        """
+        Performs an evaluation loop on the given DataLoader and returns the evaluation scores.
+        
+        Parameters
+        ----------
+        loader : DataLoader
+            A PyTorch DataLoader containing the data to be evaluated.   
+        
+        Returns
+        -------
+        dict
+            A dictionary containing the evaluation scores (uas and las).
+        """
         
         self._model.eval()
         

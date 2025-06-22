@@ -1,3 +1,21 @@
+"""
+This module implements Biaffine Dependency Parsing models based on RoBERTa, BERT, and DeBERTa architectures.
+It includes the Biaffine class for computing biaffine scores, and the main model classes for each architecture.
+These models are designed to predict dependency arcs and relation labels for tokens in a sentence.
+
+Since huggingface transformers library does not provide a class for biaffine parsing, this module implements
+custom classes that extend the pre-trained models from the transformers library. It currently only supports 3 architectures:
+- RoBERTa
+- BERT
+- DeBERTa
+but can easily be extended to support more architectures.
+
+These impelementations are entirely borrowed from the PIXEL library:
+https://github.com/xplip/pixel/tree/main
+https://arxiv.org/abs/2207.06991
+
+"""
+
 from typing import Optional, Tuple
 
 import torch
