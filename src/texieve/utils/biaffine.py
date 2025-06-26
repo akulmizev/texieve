@@ -251,7 +251,7 @@ class RobertaForBiaffineParsing(RobertaPreTrainedModel):
             starts = word_starts[i]
             ## Hardcoded to match the implementation in BiaffineParser._align_labels() ##
             mask = starts.ne(-100)
-            ## End of hardcoded section ##
+            ## --- ##
             starts = starts[mask]
             for j in range(len(starts) - 1):
                 if starts[j + 1] <= 0:
