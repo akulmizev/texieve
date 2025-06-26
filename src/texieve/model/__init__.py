@@ -1,4 +1,4 @@
 from .pretrain import MLM, CLM
-from .finetune import Tagger, Classifier
+from .finetune import Tagger, Classifier, BiaffineParser
 
-__all__ = ["MLM", "CLM", "Tagger", "Classifier"]
+__all__ = ["MLM", "CLM", "Tagger", "Classifier", "BiaffineParser"]

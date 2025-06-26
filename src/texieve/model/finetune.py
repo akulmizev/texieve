@@ -1,8 +1,9 @@
 import logging
 
-from typing import Union
+from typing import Union, Dict
 
 import evaluate
+import numpy as np
 import torch
 
 from torch.utils.data import DataLoader
@@ -12,14 +13,21 @@ from transformers import (
     DataCollatorForTokenClassification,
     DataCollatorWithPadding,
     PreTrainedTokenizerFast,
+    AutoConfig,
     set_seed,
 )
 
 from .base import ModelFromConfig
 from ..tokenization import HfTokenizerFromConfig
 from ..utils.config import TrainingParameters
+from ..utils.biaffine import (
+    BertForBiaffineParsing,
+    RobertaForBiaffineParsing,
+    DebertaForBiaffineParsing,
+    UD_HEAD_LABELS
+)
 
-__all__ = ["Tagger", "Classifier"]
+__all__ = ["Tagger", "Classifier", "BiaffinePraser"]
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -508,3 +516,277 @@ class Classifier(ModelFromConfig):
             / (scores["precision"] + scores["recall"])
             * 2,
         }
+        
+class BiaffineParser(ModelFromConfig):
+    """
+    Class for dependency parsing using biaffine attention mechanism.
+    Parameters
+    ----------
+    load_path : str
+        Path to load the model from (either a local path or a Hugging Face Hub path).
+    config : TrainingParameters
+        Configuration object for training parameters.
+    **kwargs
+        Additional keyword arguments for the parent class.
+        
+    Attributes
+    ----------
+    label_set : List[str]
+        List of labels for the task.
+    
+    Methods
+    -------
+    _init_model_and_tokenizer(tokenizer=None, label_set=None)
+        Initializes the model and tokenization for dependency parsing.
+    _align_labels(example)
+        Aligns the arc_labels and rel_labels labels with the tokenized input.
+    _tokenize_and_collate(dataset)
+        Tokenizes and collates a dataset into a PyTorch DataLoader.
+    _compute_metrics(arc_preds, rel_preds, arc_labels, rel_labels)
+        Computes the evaluation metrics (las and uas) for the dependency parsing task.
+    _eval_loop(loader)
+        Performs an evaluation loop on the given DataLoader and returns the evaluation scores.
+    """
+    def __init__(self, load_path: str, config: TrainingParameters, **kwargs):
+        super().__init__(load_path, config, **kwargs)
+
+        self.model_type = config.model_type
+                
+    def _init_model_and_tokenizer(
+        self,
+        tokenizer: Union[PreTrainedTokenizerFast, HfTokenizerFromConfig] = None,
+        label_set: set = set(UD_HEAD_LABELS),
+    ):
+        """
+        Initialize the model and tokenization for biaffine parsing.
+        Parameters
+        ----------
+        tokenizer : Union[PreTrainedTokenizerFast, HfTokenizerFromConfig], optional
+            The tokenization to be used. Generally not needed, as the tokenization will be loaded
+            from the same path as the model.
+        label_set : set, optional
+            Set of labels for the task.
+        """
+        
+        # TODO check if it is okay to include all labels or this needs to be data specifc
+        self.label_set = list(label_set)
+        self.id2label: Dict[int, str] = {i: label for i, label in enumerate(self.label_set)}
+        self.label2id: Dict[str, int] = {label: i for i, label in enumerate(self.label_set)}
+        
+        dp_config = AutoConfig.from_pretrained(
+            self.load_path,
+            num_labels=len(self.label_set),
+            id2label=self.id2label,
+            label2id=self.label2id,
+            # TODO: make these configurable
+            attention_probs_dropout_prob=0.1, 
+            hidden_dropout_prob=0.1
+        )
+        
+        if self.model_type == "bert":
+            self._model = BertForBiaffineParsing.from_pretrained(
+                self.load_path,
+                config=dp_config
+            )
+        elif self.model_type == "roberta":
+            self._model = RobertaForBiaffineParsing.from_pretrained(
+                self.load_path,
+                config=dp_config
+            )
+        elif self.model_type == "deberta":
+            self._model = DebertaForBiaffineParsing.from_pretrained(
+                self.load_path,
+                config=dp_config
+            )
+        else:
+            raise ValueError(
+                f"Model type {self.model_type} not supported. "
+                "Only 'bert', 'roberta', and 'deberta' are supported for now."
+            )
+        
+        self.tokenizer = (
+            tokenizer
+            if tokenizer
+            else PreTrainedTokenizerFast.from_pretrained(self.load_path)
+        )
+        
+        if "pad_token" not in self.tokenizer.special_tokens_map:
+            self.tokenizer.add_special_tokens({"pad_token": "[PAD]"})
+        self.collator = DataCollatorForTokenClassification(
+            tokenizer=self.tokenizer, pad_to_multiple_of=self.pad_to_multiple_of
+        )
+
+        logger.info(f"{self._model.config.model_type} for {self.task} loaded.")
+        logger.info(
+            f"Number of parameters: {round(self._model.num_parameters() / 1e6)}M"
+        )
+    
+    def _align_labels(self, example):
+        """ 
+        Aligns the arc_labels and rel_labels labels with the tokenized input.
+        Have to ignore special tokens and common prefixes/suffixes.
+        
+        Parameters
+        ----------
+        example : dict
+            A single example from the dataset.
+            
+        Returns
+        -------
+        dict
+            The tokenized input with aligned arc_labels, rel_labels, and word_starts.
+        """
+        
+        TO_IGNORE = ["Ġ", "▁", "##", "Ċ"] + list(
+            self.tokenizer.special_tokens_map.values()
+        )
+
+        tokenized_input = self.tokenizer(
+            example["tokens"],
+            padding=self.padding_strategy,
+            max_length=self.max_length,
+            truncation=True,
+            is_split_into_words=True
+        )
+
+        
+        seen = set()
+        arc_labels = []
+        rel_labels = []
+        word_starts = []
+                
+        previous_word_id = None
+        for i, word_id in enumerate(tokenized_input.word_ids()):
+            if word_id is not None and word_id != previous_word_id:
+                word_starts.append(i)  
+            previous_word_id = word_id
+            token_id = tokenized_input["input_ids"][i]
+            arc_label = int(example["head"][word_id]) if word_id is not None else -100
+            rel_label = self.label2id[example["deprel"][word_id]] if word_id is not None else -100
+            if self.tokenizer.convert_ids_to_tokens(token_id) in TO_IGNORE:
+                arc_labels.append(-100)
+                rel_labels.append(-100)
+            elif word_id in seen:
+                arc_labels.append(-100)
+                rel_labels.append(-100)
+            else:
+                arc_labels.append(arc_label)
+                rel_labels.append(rel_label)
+                seen.add(word_id)
+                
+        tokenized_input["arc_labels"] = arc_labels
+        tokenized_input["rel_labels"] = rel_labels
+        tokenized_input["word_starts"] = word_starts + (self.max_length + 1 - len(word_starts)) * [-100]
+        
+                     
+        return tokenized_input
+    
+    def _tokenize_and_collate(self, dataset):
+        """ 
+        Tokenizes and collates a dataset into a PyTorch DataLoader.
+        Assumes `tokens`, `head`, and `deprel` are features in the dataset. 
+        
+        Parameters
+        ----------
+        dataset : Dataset
+            The dataset to be tokenized and collated.
+        
+        Returns
+        -------
+        DataLoader
+            A PyTorch DataLoader containing the tokenized and collated dataset.
+        """
+        
+        batched_dataset = dataset.map(
+            self._align_labels, remove_columns=dataset.column_names
+        )
+
+        loader = DataLoader(
+            batched_dataset,
+            collate_fn=self.collator,
+            batch_size=self.batch_size,
+            pin_memory=True,
+        )
+
+        return loader
+    
+    def _compute_metrics(self, arc_preds, rel_preds, arc_labels, rel_labels):
+        """
+        Computes the evaluation metrics (las and uas) for the dependency parsing task.
+        
+        Parameters
+        ----------
+        arc_preds : List[int]
+            List of predicted arc labels.
+        rel_preds : List[int]
+            List of predicted relation labels.
+        arc_labels : List[int]
+            List of true arc labels.
+        rel_labels : List[int]
+            List of true relation labels.
+            
+        Returns
+        -------
+        dict
+            A dictionary containing the evaluation scores (uas and las).
+        """
+        correct_arcs = np.equal(arc_preds, arc_labels)
+        correct_rels = np.equal(rel_preds, rel_labels)
+        correct_arcs_and_rels = correct_arcs * correct_rels
+        
+        unlabeled_correct = correct_arcs.sum()
+        labeled_correct = correct_arcs_and_rels.sum()
+        total_words = correct_arcs.size
+        
+        unlabeled_attachment_score = unlabeled_correct / total_words
+        labeled_attachment_score = labeled_correct / total_words
+        
+        return {
+            "uas": unlabeled_attachment_score * 100,
+            "las": labeled_attachment_score * 100,
+        }
+    
+    def _eval_loop(self, loader):
+        """
+        Performs an evaluation loop on the given DataLoader and returns the evaluation scores.
+        
+        Parameters
+        ----------
+        loader : DataLoader
+            A PyTorch DataLoader containing the data to be evaluated.   
+        
+        Returns
+        -------
+        dict
+            A dictionary containing the evaluation scores (uas and las).
+        """
+        
+        self._model.eval()
+        
+        arc_preds, rel_preds = [], []
+        arc_labels, rel_labels = [], []
+        
+        for batch in loader:
+            with torch.no_grad():
+                outputs = self._model(**batch)
+                
+            mask = batch["arc_labels"].ne(-100)
+            
+            _arc_labels = batch["arc_labels"][mask]
+            _rel_labels = batch["rel_labels"][mask]
+            
+            _arc_preds = torch.argmax(outputs.arc_logits, dim=-1)[mask]
+            _rel_preds = outputs.rel_logits[mask]
+            _rel_preds = _rel_preds[torch.arange(len(_arc_labels)), _arc_labels]
+            _rel_preds = torch.argmax(_rel_preds, dim=-1)
+            
+
+            arc_preds.extend(_arc_preds.detach().cpu().tolist())
+            rel_preds.extend(_rel_preds.detach().cpu().tolist())
+            arc_labels.extend(_arc_labels.detach().cpu().tolist())
+            rel_labels.extend(_rel_labels.detach().cpu().tolist())
+            
+        
+        scores = self._compute_metrics(arc_preds, rel_preds, arc_labels, rel_labels)
+        
+        return scores

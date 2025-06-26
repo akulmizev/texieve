@@ -10,6 +10,11 @@ from transformers import (
 )
 
 from ..data import metrics
+from .biaffine import (
+    BertForBiaffineParsing,
+    RobertaForBiaffineParsing,
+    DebertaForBiaffineParsing
+)
 
 
 METRIC_MAP = {
@@ -87,4 +92,10 @@ TASK_TO_MODEL_AND_COLLATOR_MAPPING = {
         "model": AutoModelForSequenceClassification,
         "collator": DataCollatorWithPadding,
     },
+    "parser": {
+        "bert": BertForBiaffineParsing,
+        "roberta": RobertaForBiaffineParsing,
+        "deberta": DebertaForBiaffineParsing,
+        "collator": DataCollatorForTokenClassification,
+    }
 }

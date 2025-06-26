@@ -305,7 +305,7 @@ class ModelFromConfig(ModelInitMixin):
                             )
 
                             if self.checkpoint_path:
-                                try:
+                                if "loss" in scores.keys():
                                     if scores["loss"] < running_loss:
                                         logger.info(
                                             f"Saving model checkpoint at epoch {epoch+1}."
@@ -315,8 +315,12 @@ class ModelFromConfig(ModelInitMixin):
                                             safe_serialization=False,
                                         )
                                         running_loss = scores["loss"]
-                                except KeyError:
-                                    if scores["f1"] > running_f1:
+                                else:
+                                    if "f1" in scores.keys():
+                                        metric = "f1"
+                                    else:
+                                        metric = "las" 
+                                    if scores[metric] > running_f1:
                                         logger.info(
                                             f"Saving model checkpoint at epoch {epoch+1}."
                                         )
@@ -324,7 +328,7 @@ class ModelFromConfig(ModelInitMixin):
                                             self.checkpoint_path,
                                             safe_serialization=False,
                                         )
-                                        running_f1 = scores["f1"]
+                                        running_f1 = scores[metric]
 
                             if self.wandb:
                                 wandb.log({"val": scores})
@@ -356,7 +360,7 @@ class ModelFromConfig(ModelInitMixin):
                         )
 
                         if self.checkpoint_path:
-                            try:
+                            if "loss" in scores.keys():
                                 if scores["loss"] < running_loss:
                                     logger.info(
                                         f"Saving model checkpoint at epoch {epoch+1}."
@@ -366,8 +370,12 @@ class ModelFromConfig(ModelInitMixin):
                                         safe_serialization=False,
                                     )
                                     running_loss = scores["loss"]
-                            except KeyError:
-                                if scores["f1"] > running_f1:
+                            else:
+                                if "f1" in scores.keys():
+                                    metric = "f1"
+                                else:
+                                    metric = "las" 
+                                if scores[metric] > running_f1:
                                     logger.info(
                                         f"Saving model checkpoint at epoch {epoch+1}."
                                     )
@@ -375,7 +383,7 @@ class ModelFromConfig(ModelInitMixin):
                                         self.checkpoint_path,
                                         safe_serialization=False,
                                     )
-                                    running_f1 = scores["f1"]
+                                    running_f1 = scores[metric]
                                     
                         if self.wandb:
                             wandb.log({"val": scores})
