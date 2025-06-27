@@ -4,6 +4,7 @@ from .data.thresholds import GOPHER_THRESHOLDS
 from .tokenization.base import HfTokenizerFromConfig
 from .tokenization.spm import HfSentencePieceTokenizerBase, HfSentencePieceTokenizer
 from .utils.config import TokenizerConfig, TrainingParameters
+from .utils.data import conllu_to_datasets
 from .model.pretrain import MLM, CLM
 from .model.finetune import Tagger, Classifier, BiaffineParser
 
@@ -21,6 +22,7 @@ __all__ = [
     "HfSentencePieceTokenizer",
     "TokenizerConfig",
     "TrainingParameters",
+    "conllu_to_datasets",
     "MLM",
     "CLM",
     "Tagger",

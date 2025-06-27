@@ -52,11 +52,12 @@ Note that both `Classifier` and `Tagger` expect the label fields to be `labels` 
 In the case that a dataset does not use these fields, you can rename them using the `rename_columns` 
 method from the `datasets` library. 
 
-Since the finetuning pipeline is designed to work with the `datasets` library, we have provided a script to convet UD datasets from `.conllu` files to a `DatasetDict` in `src/utils/read_conll.py`. Example usage:
+Since the finetuning pipeline is designed to work with the `datasets` library, we have provided a script to convet UD datasets from `.conllu` files to a `DatasetDict` in `src/utils/data.py`. Example usage:
 ```python
 # import the function 
-from utils.read_conll import conllu_to_datasets
+from texieve import conllu_to_datasets
 
 # this returns a DatasetDict object with train, validation and test splits that can be directly passed to BiaffineParser.train()
 ud_dataset = conllu_to_datasets(<path-to-ud-folder>) 
 ```
+
