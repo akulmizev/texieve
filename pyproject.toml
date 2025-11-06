@@ -39,11 +39,9 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = [
-    "kneed",
     "submitit",
     "scikit-learn",
     "seqeval",
-    "sentencepiece",
     "fasttext"
 ]
 
