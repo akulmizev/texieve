@@ -31,7 +31,10 @@ dependencies = [
     "bitsandbytes",
     "evaluate",
     "wandb",
-    "datasketch"
+    "datasketch",
+    "kneed",
+    "conllu",
+    "sentencepiece"
 ]
 
 [project.optional-dependencies]
@@ -54,4 +57,4 @@ texieve = "texieve.cli.cli:run_experiment"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"wqe.data" = ["resources/wiki_mappings.json"]
+"texieve.data" = ["resources/wiki_mappings.json"]
