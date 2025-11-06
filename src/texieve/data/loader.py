@@ -622,12 +622,16 @@ class MonolingualLoader(BaseLoader):
         self.sources = self._validate_sources(sources)
 
         if load_path:
-            # Try locally first
-            local_path = os.path.join(load_path, self.lang.id)
-
+            if load_path.endswith('.txt'):
+                local_path = load_path
+            else:
+                local_path = os.path.join(load_path, self.lang.id)
             if os.path.exists(local_path):
                 try:
-                    self.data = load_from_disk(local_path)
+                    if local_path.endswith('.txt'):
+                        self.data = load_dataset('text', data_files={"train":local_path})
+                    else:
+                        self.data = load_from_disk(local_path)
                     if self.streaming:
                         self.data = IterableDatasetDict(
                             {
