@@ -8,11 +8,11 @@ version = "2025.05.07"
 requires-python = ">=3.10"
 authors = [
     {name = "Artur Kulmizev", email = "akulmizev@gmail.com"},
-    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+    {name = "Kushal Tatariya", email = "kushaljayesh.tatariya@kuleuven.be"}
 ]
 maintainers = [
     {name = "Artur Kulmizev", email = "artur.kulmizev@kuleuven.be"},
-    {name = "Kushal Tatariya", email = "kushal.tatariya@kuleuven.be"}
+    {name = "Kushal Tatariya", email = "kushaljayesh.tatariya@kuleuven.be"}
 ]
 description = "A simple toolkit for working with multilingual corpora in Python. "
 readme = "README.md"
